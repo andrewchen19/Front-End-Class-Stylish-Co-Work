@@ -283,13 +283,13 @@ function Header() {
       />
       <PageLinks>
         <PageLink to="/checkout">
-          <PageLinkCartIcon icon={cart}>
+          <PageLinkCartIcon $icon={cart}>
             <PageLinkIconNumber>{cartCount}</PageLinkIconNumber>
           </PageLinkCartIcon>
           <PageLinkText>購物車</PageLinkText>
         </PageLink>
         <PageLink to="/profile">
-          <PageLinkProfileIcon icon={profile} />
+          <PageLinkProfileIcon $icon={profile} />
           <PageLinkText>會員</PageLinkText>
         </PageLink>
       </PageLinks>
