@@ -50,7 +50,9 @@ function App() {
   };
 
   useEffect(() => {
-    checkOpenModal();
+    setTimeout(() => {
+      checkOpenModal();
+    }, 1500);
   }, []);
 
   return (

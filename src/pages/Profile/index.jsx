@@ -5,8 +5,6 @@ import styled from "styled-components";
 import avatarImg from "../../assets/avatar.svg";
 import yellowCoin from "../../assets/y-coin.png";
 import { useGlobalContext } from "../../context/globalContext";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
   padding: 60px 20px;
@@ -44,14 +42,6 @@ function Profile() {
   const coinHandler = () => {
     setShouldModalOpen(true);
   };
-
-  const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   if (isLogin) {
-  //     navigate("/");
-  //   }
-  // }, []);
 
   const renderContent = () => {
     if (loading) return <Loading type="spinningBubbles" color="#313538" />;
