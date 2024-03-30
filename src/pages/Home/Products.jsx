@@ -1,9 +1,17 @@
 import ReactLoading from "react-loading";
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 
 import useInfiniteScroll from "../../utils/hooks/useInfiniteScroll";
 import useProducts from "../../utils/hooks/useProducts";
+
+import {
+  AiOutlineLike,
+  AiFillLike,
+  AiOutlineDislike,
+  AiFillDislike,
+} from "react-icons/ai";
 
 const Wrapper = styled.div`
   max-width: 1200px;
@@ -17,7 +25,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const Product = styled(Link)`
+const Product = styled.div`
   width: calc((100% - 120px) / 3);
   margin: 0 20px 50px;
   flex-shrink: 0;
@@ -37,6 +45,7 @@ const ProductImage = styled.img`
 const ProductColors = styled.div`
   margin-top: 20px;
   display: flex;
+  justify-content: space-between;
 
   @media screen and (max-width: 1279px) {
     margin-top: 8px;
@@ -109,15 +118,102 @@ function Products() {
   });
   useInfiniteScroll(loadMoreProducts);
 
+  // new state
+  const [isLogin, setIsLogin] = useState(false);
+  const [isLike, setIsLike] = useState(false);
+  const [isDislike, setIsDislike] = useState(false);
+  const [likeAmount, setLikeAmount] = useState(900);
+  const [dislikeAmount, setDislikeAmount] = useState(20);
+
+  const likeHandler = () => {
+    if (!isLike && !isDislike) {
+      setIsLike(true);
+      setLikeAmount(likeAmount + 1);
+    }
+
+    if (isLike && !isDislike) {
+      setIsLike(false);
+      setLikeAmount(likeAmount - 1);
+    }
+
+    if (isLike && isDislike) {
+      setIsLike(false);
+      setLikeAmount(likeAmount - 1);
+      setDislikeAmount(dislikeAmount - 1);
+    }
+
+    if (!isLike && isDislike) {
+      setIsLike(true);
+      setIsDislike(false);
+      setLikeAmount(likeAmount + 1);
+      setDislikeAmount(dislikeAmount - 1);
+    }
+  };
+  const dislikeHandler = () => {
+    if (!isLike && !isDislike) {
+      setIsDislike(true);
+      setDislikeAmount(dislikeAmount + 1);
+    }
+
+    if (!isLike && isDislike) {
+      setIsDislike(false);
+      setDislikeAmount(dislikeAmount - 1);
+    }
+
+    if (isLike && isDislike) {
+      setIsDislike(false);
+      setDislikeAmount(dislikeAmount - 1);
+      setLikeAmount(likeAmount - 1);
+    }
+
+    if (isLike && !isDislike) {
+      setIsDislike(true);
+      setIsLike(false);
+      setDislikeAmount(dislikeAmount + 1);
+      setLikeAmount(likeAmount - 1);
+    }
+  };
+
   return (
     <Wrapper>
       {products.map(({ id, main_image, colors, title, price }) => (
-        <Product key={id} to={`/products/${id}`}>
-          <ProductImage src={main_image} />
+        <Product key={id}>
+          <Link to={`/products/${id}`}>
+            <ProductImage src={main_image} />
+          </Link>
           <ProductColors>
-            {colors.map(({ code }) => (
-              <ProductColor $colorCode={`#${code}`} key={code} />
-            ))}
+            <div className="flex">
+              {colors.map(({ code }) => (
+                <ProductColor $colorCode={`#${code}`} key={code} />
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button
+                className="bg-gray-100 h-6 px-2 flex items-center gap-3 rounded-md hover:bg-gray-200"
+                title="我喜歡"
+                onClick={likeHandler}
+              >
+                {isLike ? (
+                  <AiFillLike className="w-5 h-5" fill="#3f3a3a" />
+                ) : (
+                  <AiOutlineLike className="w-4 h-4" />
+                )}
+
+                {likeAmount}
+              </button>
+              <button
+                className="bg-gray-100 h-6 px-2 flex items-center gap-3 rounded-md hover:bg-gray-200"
+                title="我不喜歡"
+                onClick={dislikeHandler}
+              >
+                {isDislike ? (
+                  <AiFillDislike className="w-5 h-5" fill="#3f3a3a" />
+                ) : (
+                  <AiOutlineDislike />
+                )}
+                {dislikeAmount}
+              </button>
+            </div>
           </ProductColors>
           <ProductTitle>{title}</ProductTitle>
           <ProductPrice>TWD.{price}</ProductPrice>

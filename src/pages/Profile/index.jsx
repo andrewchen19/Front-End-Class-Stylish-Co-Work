@@ -27,6 +27,7 @@ const Loading = styled(ReactLoading)`
 
 function Profile() {
   // const { user, isLogin, login, logout, loading } = useContext(AuthContext);
+
   const loading = false;
   const isLogin = true;
   const { setShouldModalOpen } = useGlobalContext();
