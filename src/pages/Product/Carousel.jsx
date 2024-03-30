@@ -15,7 +15,6 @@ const Carousel = () => {
       setProducts(allData);
     }
     getProducts();
-    console.log(products);
   }, []);
 
   const slideRef = useRef(null);
@@ -93,7 +92,7 @@ const Carousel = () => {
       <div className="carousel overflow-hidden h-[350px] w-[900px] rounded-2xl relative  bg-gray-100 ">
         <div
           ref={slideRef}
-          className={`container flex gap-[${gap}px] duration-700 ease-in-out`}
+          className={`container flex gap-[33px] duration-700 ease-in-out`}
         >
           {products.map((product, index) => (
             <Link key={index} to={`/products/${product.id}`}>
