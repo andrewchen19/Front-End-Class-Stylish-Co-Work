@@ -3,6 +3,7 @@ import { createGlobalStyle } from "styled-components";
 import { Reset } from "styled-reset";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
+import CustomerService from "./components/CostomerService/CostomerService";
 import { AuthContextProvider } from "./context/authContext";
 import { CartContextProvider } from "./context/cartContext";
 
@@ -37,6 +38,7 @@ function App() {
         <CartContextProvider>
           <Header />
           <Outlet />
+          <CustomerService />
           <Footer />
         </CartContextProvider>
       </AuthContextProvider>
