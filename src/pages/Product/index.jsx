@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import styled from 'styled-components';
-import api from '../../utils/api';
-import ProductVariants from './ProductVariants';
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import styled from "styled-components";
+import api from "../../utils/api";
+import ProductVariants from "./ProductVariants";
+import Carousel from "./Carousel";
 
 const Wrapper = styled.div`
   max-width: 960px;
@@ -141,7 +142,7 @@ const StoryTitle = styled.div`
   }
 
   &::after {
-    content: '';
+    content: "";
     height: 1px;
     flex-grow: 1;
     background-color: #3f3a3a;
@@ -226,6 +227,10 @@ function Product() {
           <Image src={image} key={index} />
         ))}
       </Images>
+      <Story>
+        <StoryTitle>再逛一次</StoryTitle>
+      </Story>
+      <Carousel />
     </Wrapper>
   );
 }
