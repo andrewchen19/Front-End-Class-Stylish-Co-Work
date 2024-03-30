@@ -1,11 +1,14 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { createGlobalStyle } from "styled-components";
 import { Reset } from "styled-reset";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { AuthContextProvider } from "./context/authContext";
 import { CartContextProvider } from "./context/cartContext";
-import AppProvider from "./context/globalContext";
+
+import { useEffect, useState } from "react";
+import { useGlobalContext } from "./context/globalContext";
+import Modal from "./components/Modal";
 
 import "./index.css";
 
@@ -30,19 +33,38 @@ body {
 `;
 
 function App() {
+  const { shouldModalOpen, setShouldModalOpen } = useGlobalContext();
+  const [isLogin, setIsLogin] = useState(true);
+  const [isTodayFirstLogin, setIsTodayFirstLogin] = useState(true);
+  const location = useLocation();
+  const isHomeRoute = location.pathname === "/" && !location.search;
+  const isProfileRoute = location.pathname === "/profile";
+
+  // console.log(isHomeRoute);
+  // console.log(isProfileRoute);
+
+  const checkOpenModal = () => {
+    if ((isHomeRoute || isProfileRoute) && isLogin && isTodayFirstLogin) {
+      setShouldModalOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    checkOpenModal();
+  }, []);
+
   return (
     <>
       <Reset />
       <GlobalStyle />
-      <AppProvider>
-        <AuthContextProvider>
-          <CartContextProvider>
-            <Header />
-            <Outlet />
-            <Footer />
-          </CartContextProvider>
-        </AuthContextProvider>
-      </AppProvider>
+      <AuthContextProvider>
+        <CartContextProvider>
+          <Header />
+          <Outlet />
+          <Footer />
+          {shouldModalOpen && <Modal />}
+        </CartContextProvider>
+      </AuthContextProvider>
     </>
   );
 }

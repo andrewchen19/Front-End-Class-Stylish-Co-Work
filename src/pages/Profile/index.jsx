@@ -1,9 +1,12 @@
-import { useContext } from "react";
+// import { useContext } from "react";
 import ReactLoading from "react-loading";
 import styled from "styled-components";
 // import { AuthContext } from "../../context/authContext";
 import avatarImg from "../../assets/avatar.svg";
-import yellowCoin from "../../assets/y_coin.png";
+import yellowCoin from "../../assets/y-coin.png";
+import { useGlobalContext } from "../../context/globalContext";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
   padding: 60px 20px;
@@ -24,65 +27,82 @@ const Loading = styled(ReactLoading)`
   margin-top: 50px;
 `;
 
-const loginHandler = () => {
-  return null;
-};
-
-const logoutHandler = () => {
-  return null;
-};
-
-const coinHandler = () => {};
-
 function Profile() {
   // const { user, isLogin, login, logout, loading } = useContext(AuthContext);
   const loading = false;
   const isLogin = true;
+  const { setShouldModalOpen } = useGlobalContext();
+
+  const loginHandler = () => {
+    return null;
+  };
+
+  const logoutHandler = () => {
+    return null;
+  };
+
+  const coinHandler = () => {
+    setShouldModalOpen(true);
+  };
+
+  const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   if (isLogin) {
+  //     navigate("/");
+  //   }
+  // }, []);
 
   const renderContent = () => {
     if (loading) return <Loading type="spinningBubbles" color="#313538" />;
     if (isLogin)
       return (
-        <div className="flex justify-center items-center gap-10">
-          <div>
-            <img src={avatarImg} alt="avatar-icon" className="mt-6 h-56 w-56" />
-            <button
-              className="mt-6 border-2 border-gray-300 px-4 py-2 font-bold rounded-lg tracking-wide hover:bg-secondary hover:border-transparent hover:text-white"
-              onClick={logoutHandler}
-            >
-              登出
-            </button>
-          </div>
+        <>
+          <div className="flex justify-center items-center gap-10">
+            <div>
+              <img
+                src={avatarImg}
+                alt="avatar-icon"
+                className="mt-6 h-48 w-48"
+              />
+              <button
+                className="mt-6 border-2 border-gray-300 px-4 py-2 font-bold rounded-lg tracking-wide hover:bg-secondary hover:border-transparent hover:text-white"
+                onClick={logoutHandler}
+              >
+                登出
+              </button>
+            </div>
 
-          <div className="-mt-8 flex flex-col justify-start">
-            <div className="mt-6 flex items-center gap-4">
-              <p className="font-bold capitalize text-xl">名字:</p>
-              <span className="font-bold text-gray-500 capitalize text-xl">
-                Andrew
-              </span>
-            </div>
-            <div className="mt-6 flex items-center gap-4">
-              <p className="font-bold capitalize text-xl">信箱:</p>
-              <span className="font-bold text-gray-500 text-xl">
-                andrew@gmail.com
-              </span>
-            </div>
-            <div className="mt-8 flex items-center gap-4">
-              <p className="font-bold capitalize text-xl flex items-center">
-                我的
-                <img
-                  src={yellowCoin}
-                  alt="yellow-coin-icon"
-                  className="w-7 h-7 hover:cursor-pointer"
-                  onClick={coinHandler}
-                />
-                幣:
-              </p>
+            <div className="-mt-8 flex flex-col justify-start">
+              <div className="mt-6 flex items-center gap-4">
+                <p className="font-bold capitalize text-xl">名字:</p>
+                <span className="font-bold text-gray-500 capitalize text-xl">
+                  Andrew
+                </span>
+              </div>
+              <div className="mt-6 flex items-center gap-4">
+                <p className="font-bold capitalize text-xl">信箱:</p>
+                <span className="font-bold text-gray-500 text-xl">
+                  andrew@gmail.com
+                </span>
+              </div>
+              <div className="mt-8 flex items-center gap-4">
+                <p className="font-bold capitalize text-xl flex items-center">
+                  我的
+                  <img
+                    src={yellowCoin}
+                    alt="yellow-coin-icon"
+                    className="w-7 h-7 hover:cursor-pointer"
+                    onClick={coinHandler}
+                  />
+                  幣:
+                </p>
 
-              <span className="font-bold text-gray-500 text-xl">$24</span>
+                <span className="font-bold text-gray-500 text-xl">$24</span>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       );
     return (
       <>
