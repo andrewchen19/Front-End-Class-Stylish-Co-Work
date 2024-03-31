@@ -10,6 +10,10 @@ import Cart from './Cart';
 
 import yellowCoin from '../../assets/coin_get.png';
 
+//component
+import CouponsModal from './CouponsModal';
+import { BackDrop } from './CouponsModal';
+
 const Wrapper = styled.div`
   margin: 0 auto;
   padding: 47px 0 263px;
@@ -331,6 +335,12 @@ const CoinUseSelect = styled.div`
 `;
 
 function Checkout() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [discount, setDiscount] = useState({ type: '', discount_value: 0 });
+
+  const [discountContext, setDiscountContext] = useState('結帳折抵 0 元');
+
   const [recipient, setRecipient] = useState({
     name: '',
     email: '',
@@ -434,13 +444,29 @@ function Checkout() {
 
   return (
     <Wrapper>
+      {isModalOpen && (
+        <>
+          <BackDrop
+            onClick={() => {
+              setIsModalOpen(false);
+            }}
+          />
+          <CouponsModal
+            onSubmit={setDiscount}
+            setDiscount={setDiscountContext}
+            onClose={() => {
+              setIsModalOpen(false);
+            }}
+          />
+        </>
+      )}
+
       <Cart />
       <GrayBlock>
         <DiscountWrapper>
-          {/* 綁定onClick */}
-          <CouponSelect>
-            <p className="selection">請選擇優惠券</p>
-            <p className="text-[22px]">全站折抵 50 元</p>
+          <CouponSelect onClick={() => setIsModalOpen(true)}>
+            <p className="selection">選擇優惠券</p>
+            <p className="text-[18px]">{discountContext}</p>
           </CouponSelect>
 
           <CoinUseSelect>
@@ -450,7 +476,6 @@ function Checkout() {
             <div className="toggleToUseCoins"></div>
           </CoinUseSelect>
         </DiscountWrapper>
-        {/* 改動以上 */}
         <DeliveryAndPayContainer>
           <DeliveryWrapper>
             <Label>配送國家</Label>
