@@ -1,10 +1,10 @@
-// import { useContext } from "react";
+import { useState } from "react";
 import ReactLoading from "react-loading";
 import styled from "styled-components";
-// import { AuthContext } from "../../context/authContext";
 import avatarImg from "../../assets/avatar.svg";
 import yellowCoin from "../../assets/y-coin.png";
 import { useGlobalContext } from "../../context/globalContext";
+import { customFetch } from "../../utils/interceptor";
 
 const Wrapper = styled.div`
   padding: 60px 20px;
@@ -26,13 +26,37 @@ const Loading = styled(ReactLoading)`
 `;
 
 function Profile() {
-  // const { user, isLogin, login, logout, loading } = useContext(AuthContext);
-  const loading = false;
-  const isLogin = true;
-  const { setShouldModalOpen } = useGlobalContext();
+  const {
+    setShouldModalOpen,
+    setUser,
+    user,
+    setIsLogin,
+    setIsTodayFirstLogin,
+  } = useGlobalContext();
 
-  const loginHandler = () => {
-    return null;
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  const loginHandler = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    setIsLoading(true);
+    try {
+      const response = await customFetch.post("/", { email, password });
+
+      console.log(response);
+
+      // setUser(userData)
+
+      // localStorage.setItem("user", JSON.stringify(user))
+    } catch (error) {
+      setError(error);
+    }
+    setIsLoading(false);
   };
 
   const logoutHandler = () => {
@@ -43,9 +67,12 @@ function Profile() {
     setShouldModalOpen(true);
   };
 
+  const USER = "user";
+
   const renderContent = () => {
-    if (loading) return <Loading type="spinningBubbles" color="#313538" />;
-    if (isLogin)
+    if (isLoading) return <Loading type="spinningBubbles" color="#313538" />;
+    if (error) return <div>There was an error...</div>;
+    if (USER)
       return (
         <>
           <div className="flex justify-center items-center gap-10">
@@ -95,7 +122,7 @@ function Profile() {
         </>
       );
     return (
-      <>
+      <form onSubmit={loginHandler}>
         <div className="flex flex-col gap-y-2 mt-6">
           <label htmlFor="email" className="text-sm font-semibold">
             Email
@@ -105,6 +132,7 @@ function Profile() {
             name="email"
             id="email"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            required
           />
         </div>
         <div className="flex flex-col gap-y-2 mt-6">
@@ -116,15 +144,16 @@ function Profile() {
             name="password"
             id="password"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            required
           />
         </div>
         <button
           className="mt-6 border-2 border-gray-300 px-4 py-2 font-bold rounded-lg tracking-wide hover:bg-secondary hover:border-transparent hover:text-white"
-          onClick={loginHandler}
+          type="submit"
         >
           登入
         </button>
-      </>
+      </form>
     );
   };
 

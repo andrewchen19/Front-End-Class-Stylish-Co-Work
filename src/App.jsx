@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { createGlobalStyle } from "styled-components";
 import { Reset } from "styled-reset";
 import Footer from "./components/Footer";
@@ -6,8 +6,9 @@ import Header from "./components/Header";
 import { AuthContextProvider } from "./context/authContext";
 import { CartContextProvider } from "./context/cartContext";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useGlobalContext } from "./context/globalContext";
+import { customFetch } from "./utils/interceptor";
 import Modal from "./components/Modal";
 
 import "./index.css";
@@ -33,27 +34,51 @@ body {
 `;
 
 function App() {
-  const { shouldModalOpen, setShouldModalOpen } = useGlobalContext();
-  const [isLogin, setIsLogin] = useState(true);
-  const [isTodayFirstLogin, setIsTodayFirstLogin] = useState(true);
+  const {
+    shouldModalOpen,
+    setShouldModalOpen,
+    isLogin,
+    setIsLogin,
+    isTodayFirstLogin,
+    setIsTodayFirstLogin,
+    setTotalCoin,
+    setContinuousToday,
+  } = useGlobalContext();
+
   const location = useLocation();
-  const isHomeRoute = location.pathname === "/" && !location.search;
-  const isProfileRoute = location.pathname === "/profile";
-
-  // console.log(isHomeRoute);
-  // console.log(isProfileRoute);
-
-  const checkOpenModal = () => {
-    if ((isHomeRoute || isProfileRoute) && isLogin && isTodayFirstLogin) {
-      setShouldModalOpen(true);
-    }
-  };
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setTimeout(() => {
-      checkOpenModal();
-    }, 1500);
-  }, []);
+    const checkStatus = async () => {
+      try {
+        // const response = await customFetch.get()
+        // setIsLogin();
+        // setIsTodayFirstLogin();
+        // setTotalCoin();
+        // setContinuousToday();
+      } catch (error) {
+        console.log(error);
+        // token expired or missing
+        alert("Authentication required. Please login again");
+        navigate("/login");
+      }
+    };
+    const isHomeRoute = location.pathname === "/" && !location.search;
+    const isProfileRoute = location.pathname === "/profile";
+
+    if (isHomeRoute || isProfileRoute) {
+      checkStatus();
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (isLogin && isTodayFirstLogin) {
+      setTimeout(() => {
+        setShouldModalOpen(true);
+      }, 1500);
+    }
+    setShouldModalOpen(false);
+  }, [isLogin, isTodayFirstLogin]);
 
   return (
     <>

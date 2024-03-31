@@ -2,13 +2,11 @@ import DailyCoin from "./DailyCoin";
 import { useGlobalContext } from "../context/globalContext";
 
 const Modal = () => {
-  const { setShouldModalOpen } = useGlobalContext();
+  const { setShouldModalOpen, totalCoin } = useGlobalContext();
 
   const closeModal = () => {
     return setShouldModalOpen(false);
   };
-
-  const loginDay = 5;
 
   return (
     <div className="fixed inset-0 w-full h-screen grid justify-center z-10">
@@ -16,20 +14,14 @@ const Modal = () => {
         <div className="h-[30%] bg-primary grid place-items-center rounded-t-xl">
           <h4 className="text-lg text-white flex items-center">
             累積 S 幣：
-            <span className="text-3xl text-yellow-400 pl-3">$24</span>
+            <span className="text-3xl text-yellow-400 pl-3">${totalCoin}</span>
           </h4>
         </div>
 
         <div className="flex-1 bg-gray-200 rounded-b-xl flex flex-col items-center px-4 pt-8">
           <div className="flex gap-5">
             {Array.from({ length: 7 }, (_, index) => {
-              return (
-                <DailyCoin
-                  key={index + 1}
-                  day={index + 1}
-                  loginDay={loginDay}
-                />
-              );
+              return <DailyCoin key={index + 1} day={index + 1} />;
             })}
           </div>
           <p className="mt-4 text-lg">明天記得回來領取 S 幣 !</p>
