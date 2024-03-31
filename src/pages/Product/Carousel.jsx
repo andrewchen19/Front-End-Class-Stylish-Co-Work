@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import api from '../../utils/api';
 import left from '/src/assets/left.png';
 import right from '/src/assets/right.png';
 import leftHover from '/src/assets/left_hover.png';
@@ -8,13 +7,21 @@ import { Link } from 'react-router-dom';
 
 const Carousel = () => {
   const [products, setProducts] = useState([]);
+
   useEffect(() => {
-    async function getProducts() {
-      const { data } = await api.getProducts('all', 0);
-      const allData = [...data, ...data];
-      setProducts(allData);
+    const allProductsUrl = 'http://34.29.92.215:5000/api/1.1/user/view/history';
+    const token =
+      'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInVzZXJSb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcxMTg1NzU4OCwiZXhwIjoxNzEyNzIxNTg4fQ.Xsqx9VNXmqCvJOxaJ9s-7n-6_vCQIGrKCuHCo4mvkabeQlFsdNQUnF1f_XwsVB3_eWKOWCbYAYB2vX1ciZzsDg';
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+    async function getProducts(url, headers) {
+      const response = await fetch(url, { headers });
+      const data = await response.json();
+      setProducts(data);
     }
-    getProducts();
+    getProducts(allProductsUrl, headers);
   }, []);
 
   const slideRef = useRef(null);
@@ -95,9 +102,13 @@ const Carousel = () => {
           className={`container flex gap-[33px] duration-700 ease-in-out`}
         >
           {products.map((product, index) => (
-            <Link key={index} to={`/products/${product.id}`}>
+            <Link key={index} to={`/products/${product.product_id}`}>
               <div className={`content w-[${imgWidth}px] flex-shrink-0 mt-6 `}>
-                <img className="w-[200px]" src={product.main_image} alt="" />
+                <img
+                  className="w-[200px]"
+                  src={'http://3.225.61.15/' + product.url}
+                  alt=""
+                />
                 <h3 className="ml-2 mt-3">{product.title}</h3>
               </div>
             </Link>
