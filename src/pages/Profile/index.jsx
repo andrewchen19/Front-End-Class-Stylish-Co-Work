@@ -46,12 +46,9 @@ function Profile() {
 
     setIsLoading(true);
     try {
-      const response = await customFetch.post("/", { email, password });
-
-      console.log(response);
-
+      // const response = await customFetch.post("/", { email, password });
+      // console.log(response);
       // setUser(userData)
-
       // localStorage.setItem("user", JSON.stringify(user))
     } catch (error) {
       setError(error);
