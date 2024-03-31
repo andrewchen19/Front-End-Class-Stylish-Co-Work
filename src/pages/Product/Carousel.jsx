@@ -106,7 +106,7 @@ const Carousel = () => {
               <div className={`content w-[${imgWidth}px] flex-shrink-0 mt-6 `}>
                 <img
                   className="w-[200px]"
-                  src={'http://3.225.61.15/' + product.url}
+                  src={'https://3.225.61.15/' + product.url}
                   alt=""
                 />
                 <h3 className="ml-2 mt-3">{product.title}</h3>
