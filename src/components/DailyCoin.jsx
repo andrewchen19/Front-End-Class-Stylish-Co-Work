@@ -1,7 +1,10 @@
 import whiteCoin from "../assets/w-coin.png";
 import yellowCoin from "../assets/y-coin.png";
+import { useGlobalContext } from "../context/globalContext";
 
-const DailyCoin = ({ day, loginDay }) => {
+const DailyCoin = ({ day }) => {
+  const { continuousToday } = useGlobalContext();
+
   return (
     <div className="flex flex-col gap-y-3">
       <p>Day {day}</p>
@@ -11,9 +14,9 @@ const DailyCoin = ({ day, loginDay }) => {
         ) : (
           <span>+1</span>
         )}
-        {day < loginDay ? (
+        {day < continuousToday ? (
           <img src={yellowCoin} alt="yellow-coin"></img>
-        ) : day === loginDay ? (
+        ) : day === continuousToday ? (
           <img
             src={yellowCoin}
             alt="yellow-coin"
