@@ -13,19 +13,6 @@ import "./index.css";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<App />}>
-        <Route index element={<Home />} />
-        <Route path="products/:id" element={<Product />} />
-        <Route path="checkout" element={<Checkout />} />
-        <Route path="thankyou" element={<ThankYou />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="socket" element={<Socket />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
-    </Routes>
-  </BrowserRouter>
   <AppProvider>
     <BrowserRouter>
       <Routes>
