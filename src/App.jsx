@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { createGlobalStyle } from "styled-components";
 import { Reset } from "styled-reset";
 import Footer from "./components/Footer";
@@ -8,10 +8,12 @@ import { CartContextProvider } from "./context/cartContext";
 
 import { useEffect } from "react";
 import { useGlobalContext } from "./context/globalContext";
-import { customFetch } from "./utils/interceptor";
 import Modal from "./components/Modal";
+import { ToastContainer, Zoom } from "react-toastify";
+import axios from "axios";
 
 import "./index.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -39,46 +41,67 @@ function App() {
     setShouldModalOpen,
     isLogin,
     setIsLogin,
-    isTodayFirstLogin,
-    setIsTodayFirstLogin,
+    isLoginToday,
+    setIsLoginToday,
     setTotalCoin,
     setContinuousToday,
+    setUser,
+    user,
   } = useGlobalContext();
 
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
+    const isHomeRoute = location.pathname === "/" && !location.search;
+
     const checkStatus = async () => {
+      const url = `https://3.225.61.15/api/1.0/user/getUserStatus`;
+      const token = user.accessToken;
       try {
-        // const response = await customFetch.get()
-        // setIsLogin();
-        // setIsTodayFirstLogin();
-        // setTotalCoin();
-        // setContinuousToday();
+        const response = await axios.get(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log(response);
+
+        const { ifLoginToday, userTotalPoints, continuousLoginCounts, userId } =
+          response.data;
+
+        setIsLogin(true);
+        setIsLoginToday(ifLoginToday);
+        setTotalCoin(userTotalPoints);
+        setContinuousToday(continuousLoginCounts);
+
+        const updatedUser = {
+          ...user,
+          status: {
+            continuousLoginCounts,
+            ifLoginToday,
+            userTotalPoints,
+            userId,
+          },
+        };
+
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
       } catch (error) {
-        console.log(error);
-        // token expired or missing
-        alert("Authentication required. Please login again");
-        navigate("/login");
+        console.log("token expired or missing");
       }
     };
-    const isHomeRoute = location.pathname === "/" && !location.search;
-    const isProfileRoute = location.pathname === "/profile";
 
-    if (isHomeRoute || isProfileRoute) {
+    if (isHomeRoute && user) {
       checkStatus();
     }
   }, [location.pathname]);
 
   useEffect(() => {
-    if (isLogin && isTodayFirstLogin) {
+    if (isLogin && !isLoginToday) {
       setTimeout(() => {
         setShouldModalOpen(true);
       }, 1500);
     }
     setShouldModalOpen(false);
-  }, [isLogin, isTodayFirstLogin]);
+  }, [isLogin, isLoginToday]);
 
   return (
     <>
@@ -90,6 +113,11 @@ function App() {
           <Outlet />
           <Footer />
           {shouldModalOpen && <Modal />}
+          <ToastContainer
+            position="top-center"
+            autoClose={2000}
+            transition={Zoom}
+          />
         </CartContextProvider>
       </AuthContextProvider>
     </>

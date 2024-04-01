@@ -1,10 +1,11 @@
 import { useState } from "react";
 import ReactLoading from "react-loading";
 import styled from "styled-components";
-import avatarImg from "../../assets/avatar.svg";
 import yellowCoin from "../../assets/y-coin.png";
 import { useGlobalContext } from "../../context/globalContext";
-import { customFetch } from "../../utils/interceptor";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Wrapper = styled.div`
   padding: 60px 20px;
@@ -31,51 +32,75 @@ function Profile() {
     setUser,
     user,
     setIsLogin,
-    setIsTodayFirstLogin,
+    setIsLoginToday,
+    setTotalCoin,
+    setContinuousToday,
   } = useGlobalContext();
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
 
+  const navigate = useNavigate();
+
   const loginHandler = async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
+    const provider = "native";
     const email = formData.get("email");
     const password = formData.get("password");
+    const accessToken = null;
 
     setIsLoading(true);
+
+    const url = `https://3.225.61.15/api/1.0/user/signin`;
     try {
-      // const response = await customFetch.post("/", { email, password });
-      // console.log(response);
-      // setUser(userData)
-      // localStorage.setItem("user", JSON.stringify(user))
+      const response = await axios.post(url, {
+        provider,
+        email,
+        password,
+        accessToken,
+      });
+      console.log(response);
+
+      const user = response.data.data;
+
+      setUser(user);
+      setIsLogin(true);
+      setIsLoginToday(user.status.ifLoginToday);
+      setTotalCoin(user.status.userTotalPoints);
+      setContinuousToday(user.status.continuousLoginCounts);
+
+      localStorage.setItem("user", JSON.stringify(user));
     } catch (error) {
+      console.log(error);
       setError(error);
     }
     setIsLoading(false);
   };
 
   const logoutHandler = () => {
-    return null;
+    setUser(null);
+    setIsLogin(false);
+    localStorage.removeItem("user");
+    toast.success("Log out successfully 🖐🏼");
+    navigate("/profile");
   };
 
   const coinHandler = () => {
     setShouldModalOpen(true);
   };
 
-  const USER = "user";
-
   const renderContent = () => {
     if (isLoading) return <Loading type="spinningBubbles" color="#313538" />;
     if (error) return <div>There was an error...</div>;
-    if (USER)
+    if (user)
       return (
         <>
           <div className="flex justify-center items-center gap-10">
             <div>
               <img
-                src={avatarImg}
+                src={`https://3.225.61.15${user.picture}`}
                 alt="avatar-icon"
                 className="mt-6 h-48 w-48"
               />
@@ -91,13 +116,13 @@ function Profile() {
               <div className="mt-6 flex items-center gap-4">
                 <p className="font-bold capitalize text-xl">名字:</p>
                 <span className="font-bold text-gray-500 capitalize text-xl">
-                  Andrew
+                  {user.name}
                 </span>
               </div>
               <div className="mt-6 flex items-center gap-4">
                 <p className="font-bold capitalize text-xl">信箱:</p>
                 <span className="font-bold text-gray-500 text-xl">
-                  andrew@gmail.com
+                  {user.email}
                 </span>
               </div>
               <div className="mt-8 flex items-center gap-4">
@@ -112,7 +137,9 @@ function Profile() {
                   幣:
                 </p>
 
-                <span className="font-bold text-gray-500 text-xl">$24</span>
+                <span className="font-bold text-gray-500 text-xl">
+                  ${user.status.userTotalPoints}
+                </span>
               </div>
             </div>
           </div>

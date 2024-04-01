@@ -3,6 +3,15 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import api from "../../utils/api";
 import ProductVariants from "./ProductVariants";
+import { toast } from "react-toastify";
+import { useGlobalContext } from "../../context/globalContext";
+
+import {
+  AiOutlineLike,
+  AiFillLike,
+  AiOutlineDislike,
+  AiFillDislike,
+} from "react-icons/ai";
 
 const Wrapper = styled.div`
   max-width: 960px;
@@ -68,6 +77,8 @@ const Price = styled.div`
   color: #3f3a3a;
   padding-bottom: 20px;
   border-bottom: 1px solid #3f3a3a;
+
+  position: relative;
 
   @media screen and (max-width: 1279px) {
     line-height: 24px;
@@ -193,12 +204,14 @@ function Product() {
   const [product, setProduct] = useState();
   const { id } = useParams();
 
+  const { user } = useGlobalContext();
+
   // new state
-  const [isLogin, setIsLogin] = useState(false);
   const [isLike, setIsLike] = useState(false);
   const [isDislike, setIsDislike] = useState(false);
-  const [likeAmount, setLikeAmount] = useState(50);
-  const [dislikeAmount, setDislikeAmount] = useState(5);
+  const [value, setValue] = useState("");
+  const [likeAmount, setLikeAmount] = useState(999);
+  const [dislikeAmount, setDislikeAmount] = useState(100);
 
   useEffect(() => {
     async function getProduct() {
@@ -208,7 +221,80 @@ function Product() {
     getProduct();
   }, [id]);
 
+  useEffect(() => {
+    if (!value) return;
+
+    const delayedFunction = async();
+
+    const timeoutId = setTimeout(delayedFunction, 10000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [value]);
+
   if (!product) return null;
+
+  const likeHandler = () => {
+    const addLike = !isLike && !isDislike;
+    const cancelLike = isLike && !isDislike;
+    const addLikeAndCancelDislike = !isLike && isDislike;
+
+    if (!user) {
+      toast.error("Please log in first 😬");
+      return;
+    }
+
+    if (addLike) {
+      setIsLike(true);
+      setLikeAmount(likeAmount + 1);
+    }
+
+    if (cancelLike) {
+      setIsLike(false);
+      setLikeAmount(likeAmount - 1);
+    }
+
+    if (addLikeAndCancelDislike) {
+      setIsLike(true);
+      setIsDislike(false);
+      setLikeAmount(likeAmount + 1);
+      setDislikeAmount(dislikeAmount - 1);
+    }
+  };
+  const dislikeHandler = () => {
+    const addDislike = !isLike && !isDislike;
+    const cancelDislike = !isLike && isDislike;
+    const addDislikeAndCancelLike = isLike && !isDislike;
+
+    if (!user) {
+      toast.error("Please log in first 😬");
+      return;
+    }
+
+    if (addDislike) {
+      setIsDislike(true);
+      setDislikeAmount(dislikeAmount + 1);
+    }
+
+    if (cancelDislike) {
+      setIsDislike(false);
+      setDislikeAmount(dislikeAmount - 1);
+    }
+
+    if (addDislikeAndCancelLike) {
+      setIsDislike(true);
+      setIsLike(false);
+      setDislikeAmount(dislikeAmount + 1);
+      setLikeAmount(likeAmount - 1);
+    }
+  };
+  const amountTransform = (amount) => {
+    if (amount >= 1000) {
+      return `${(amount / 1000).toFixed(1)}K`;
+    }
+    return amount;
+  };
 
   return (
     <Wrapper>
@@ -216,7 +302,35 @@ function Product() {
       <Details>
         <Title>{product.title}</Title>
         <ID>{product.id}</ID>
-        <Price>TWD.{product.price}</Price>
+        <Price>
+          TWD.{product.price}
+          <button
+            className="absolute bottom-[20px] right-[80px] bg-gray-100 h-6 px-2 flex items-center gap-2 rounded-md hover:bg-gray-200 font-normal text-base"
+            title="我喜歡"
+            onClick={() => likeHandler(product.id)}
+          >
+            {isLike ? (
+              <AiFillLike className="w-5 h-5" fill="#3f3a3a" />
+            ) : (
+              <AiOutlineLike className="w-4 h-4" />
+            )}
+
+            {amountTransform(likeAmount)}
+          </button>
+          <button
+            className="absolute bottom-[20px] right-0 bg-gray-100 h-6 px-2 flex items-center gap-2 rounded-md hover:bg-gray-200 font-normal text-base"
+            title="我不喜歡"
+            onClick={() => dislikeHandler(product.id)}
+          >
+            {isDislike ? (
+              <AiFillDislike className="w-5 h-5" fill="#3f3a3a" />
+            ) : (
+              <AiOutlineDislike className="w-4 h-4" />
+            )}
+            {amountTransform(dislikeAmount)}
+          </button>
+        </Price>
+
         <ProductVariants product={product} />
         <Note>{product.note}</Note>
         <Texture>{product.texture}</Texture>

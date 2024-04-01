@@ -2,7 +2,7 @@ import DailyCoin from "./DailyCoin";
 import { useGlobalContext } from "../context/globalContext";
 
 const Modal = () => {
-  const { setShouldModalOpen, totalCoin } = useGlobalContext();
+  const { setShouldModalOpen, totalCoin, continuousToday } = useGlobalContext();
 
   const closeModal = () => {
     return setShouldModalOpen(false);
@@ -21,13 +21,22 @@ const Modal = () => {
         <div className="flex-1 bg-gray-200 rounded-b-xl flex flex-col items-center px-4 pt-8">
           <div className="flex gap-5">
             {Array.from({ length: 7 }, (_, index) => {
-              return <DailyCoin key={index + 1} day={index + 1} />;
+              return (
+                <DailyCoin
+                  key={index + 1}
+                  day={index + 1}
+                  continuousToday={continuousToday}
+                />
+              );
             })}
           </div>
-          <p className="mt-4 text-lg">明天記得回來領取 S 幣 !</p>
+          <p className="mt-4 text-lg">
+            {continuousToday === 7
+              ? "全勤寶貝是你吧?! 要繼續保持唷~"
+              : "明天記得回來領取 S 幣!"}
+          </p>
         </div>
 
-        {/* close button */}
         <div
           className="absolute top-0 right-0 w-8 h-8 translate-x-[40%] -translate-y-[40%] rounded-full bg-yellow-400 grid place-items-center hover:cursor-pointer"
           onClick={closeModal}

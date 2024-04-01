@@ -11,12 +11,16 @@ export const getUserFromLocalStorage = () => {
 const AppProvider = (props) => {
   const [shouldModalOpen, setShouldModalOpen] = useState(false);
   const [user, setUser] = useState(() => getUserFromLocalStorage());
-  const [isLogin, setIsLogin] = useState(true);
-  const [isTodayFirstLogin, setIsTodayFirstLogin] = useState(true);
-  const [totalCoin, setTotalCoin] = useState(
-    () => getUserFromLocalStorage()?.totalCoin || 30
+  const [isLogin, setIsLogin] = useState(false);
+  const [isLoginToday, setIsLoginToday] = useState(
+    () => getUserFromLocalStorage()?.status?.ifLoginToday || false
   );
-  const [continuousToday, setContinuousToday] = useState(5);
+  const [totalCoin, setTotalCoin] = useState(
+    () => getUserFromLocalStorage()?.status?.userTotalPoints || 0
+  );
+  const [continuousToday, setContinuousToday] = useState(
+    () => getUserFromLocalStorage()?.status?.continuousLoginCounts || 0
+  );
 
   return (
     <globalContext.Provider
@@ -27,8 +31,8 @@ const AppProvider = (props) => {
         setUser,
         isLogin,
         setIsLogin,
-        isTodayFirstLogin,
-        setIsTodayFirstLogin,
+        isLoginToday,
+        setIsLoginToday,
         totalCoin,
         setTotalCoin,
         continuousToday,

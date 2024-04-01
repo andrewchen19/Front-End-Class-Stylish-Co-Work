@@ -5,13 +5,7 @@ import styled from "styled-components";
 
 import useInfiniteScroll from "../../utils/hooks/useInfiniteScroll";
 import useProducts from "../../utils/hooks/useProducts";
-
-import {
-  AiOutlineLike,
-  AiFillLike,
-  AiOutlineDislike,
-  AiFillDislike,
-} from "react-icons/ai";
+import { AiFillLike } from "react-icons/ai";
 
 const Wrapper = styled.div`
   max-width: 1200px;
@@ -46,6 +40,7 @@ const ProductColors = styled.div`
   margin-top: 20px;
   display: flex;
   justify-content: space-between;
+  position: relative;
 
   @media screen and (max-width: 1279px) {
     margin-top: 8px;
@@ -119,59 +114,13 @@ function Products() {
   useInfiniteScroll(loadMoreProducts);
 
   // new state
-  const [isLogin, setIsLogin] = useState(false);
-  const [isLike, setIsLike] = useState(false);
-  const [isDislike, setIsDislike] = useState(false);
-  const [likeAmount, setLikeAmount] = useState(900);
-  const [dislikeAmount, setDislikeAmount] = useState(20);
+  const [likeAmount, setLikeAmount] = useState(1000);
 
-  const likeHandler = () => {
-    if (!isLike && !isDislike) {
-      setIsLike(true);
-      setLikeAmount(likeAmount + 1);
+  const amountTransform = (amount) => {
+    if (amount >= 1000) {
+      return `${(amount / 1000).toFixed(1)}K`;
     }
-
-    if (isLike && !isDislike) {
-      setIsLike(false);
-      setLikeAmount(likeAmount - 1);
-    }
-
-    if (isLike && isDislike) {
-      setIsLike(false);
-      setLikeAmount(likeAmount - 1);
-      setDislikeAmount(dislikeAmount - 1);
-    }
-
-    if (!isLike && isDislike) {
-      setIsLike(true);
-      setIsDislike(false);
-      setLikeAmount(likeAmount + 1);
-      setDislikeAmount(dislikeAmount - 1);
-    }
-  };
-  const dislikeHandler = () => {
-    if (!isLike && !isDislike) {
-      setIsDislike(true);
-      setDislikeAmount(dislikeAmount + 1);
-    }
-
-    if (!isLike && isDislike) {
-      setIsDislike(false);
-      setDislikeAmount(dislikeAmount - 1);
-    }
-
-    if (isLike && isDislike) {
-      setIsDislike(false);
-      setDislikeAmount(dislikeAmount - 1);
-      setLikeAmount(likeAmount - 1);
-    }
-
-    if (isLike && !isDislike) {
-      setIsDislike(true);
-      setIsLike(false);
-      setDislikeAmount(dislikeAmount + 1);
-      setLikeAmount(likeAmount - 1);
-    }
+    return amount;
   };
 
   return (
@@ -187,32 +136,11 @@ function Products() {
                 <ProductColor $colorCode={`#${code}`} key={code} />
               ))}
             </div>
-            <div className="flex gap-3">
-              <button
-                className="bg-gray-100 h-6 px-2 flex items-center gap-3 rounded-md hover:bg-gray-200"
-                title="我喜歡"
-                onClick={likeHandler}
-              >
-                {isLike ? (
-                  <AiFillLike className="w-5 h-5" fill="#3f3a3a" />
-                ) : (
-                  <AiOutlineLike className="w-4 h-4" />
-                )}
-
-                {likeAmount}
-              </button>
-              <button
-                className="bg-gray-100 h-6 px-2 flex items-center gap-3 rounded-md hover:bg-gray-200"
-                title="我不喜歡"
-                onClick={dislikeHandler}
-              >
-                {isDislike ? (
-                  <AiFillDislike className="w-5 h-5" fill="#3f3a3a" />
-                ) : (
-                  <AiOutlineDislike />
-                )}
-                {dislikeAmount}
-              </button>
+            <div className="absolute right-0 flex items-center">
+              <AiFillLike fill="#3f3a3a" className="text-[20px] leading-6" />
+              <p className="pl-3 font-medium text-primary">
+                {amountTransform(likeAmount)}
+              </p>
             </div>
           </ProductColors>
           <ProductTitle>{title}</ProductTitle>
