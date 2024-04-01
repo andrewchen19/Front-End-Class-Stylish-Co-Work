@@ -1,5 +1,6 @@
 const api = {
   hostname: 'https://3.225.61.15/api/1.0',
+
   async getProducts(category, paging) {
     const response = await fetch(
       `${this.hostname}/products/${category}?paging=${paging}`
@@ -12,12 +13,24 @@ const api = {
   },
   async searchProducts(keyword, paging) {
     const response = await fetch(
-      `${this.hostname}/products/search?keyword=${keyword}&paging=${paging}`
+      `${this.hostname}/products/search?keyword=${keyword}&paging=${paging}`,
+      `${header}`
     );
     return await response.json();
   },
-  async getProduct(id) {
-    const response = await fetch(`${this.hostname}/products/details?id=${id}`);
+  async getProduct(id, token) {
+    let response;
+    if (!token) {
+      response = await fetch(`${this.hostname}/products/details?id=${id}`);
+    } else {
+      response = await fetch(`${this.hostname}/products/details?id=${id}`, {
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }),
+      });
+    }
+
     return await response.json();
   },
   async checkout(data, jwtToken) {

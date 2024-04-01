@@ -7,6 +7,7 @@ import { CartContext } from '../../context/cartContext';
 import api from '../../utils/api';
 import tappay from '../../utils/tappay';
 import Cart from './Cart';
+import { useGlobalContext } from '../../context/globalContext';
 
 import yellowCoin from '../../assets/coin_get.png';
 
@@ -335,6 +336,7 @@ const CoinUseSelect = styled.div`
 
 function Checkout() {
   // ↓ co-work adjustment
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [discount, setDiscount] = useState({
@@ -348,12 +350,12 @@ function Checkout() {
   const [discountContext, setDiscountContext] = useState('結帳折抵 0 元');
 
   const [allCoupons, setAllCoupons] = useState([]);
-
+  const { user } = useGlobalContext();
   useEffect(() => {
+    if (!user) return;
+    const token = user.accessToken;
     const allCouponsUrl =
-      'http://34.29.92.215:5000/api/1.1/user/available-coupons'; //待修改
-    const token =
-      'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInVzZXJSb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcxMTg1NzU4OCwiZXhwIjoxNzEyNzIxNTg4fQ.Xsqx9VNXmqCvJOxaJ9s-7n-6_vCQIGrKCuHCo4mvkabeQlFsdNQUnF1f_XwsVB3_eWKOWCbYAYB2vX1ciZzsDg';
+      'https://34.29.92.215/api/1.1/user/available-coupons ';
     const headers = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,

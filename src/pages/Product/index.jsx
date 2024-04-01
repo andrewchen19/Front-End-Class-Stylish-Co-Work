@@ -215,8 +215,9 @@ function Product() {
   const [dislikeAmount, setDislikeAmount] = useState(100);
 
   useEffect(() => {
+    const token = user ? user.accessToken : '';
     async function getProduct() {
-      const { data } = await api.getProduct(id);
+      const { data } = await api.getProduct(id, token);
       setProduct(data);
     }
     getProduct();
@@ -348,10 +349,14 @@ function Product() {
           <Image src={image} key={index} />
         ))}
       </Images>
-      <Story>
-        <StoryTitle>再逛一次</StoryTitle>
-      </Story>
-      <Carousel />
+      {user && (
+        <>
+          <Story>
+            <StoryTitle>再逛一次</StoryTitle>
+          </Story>
+          <Carousel />
+        </>
+      )}
     </Wrapper>
   );
 }

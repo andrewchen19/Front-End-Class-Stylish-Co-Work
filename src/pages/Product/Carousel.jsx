@@ -4,14 +4,16 @@ import right from '/src/assets/right.png';
 import leftHover from '/src/assets/left_hover.png';
 import rightHover from '/src/assets/right_hover.png';
 import { Link } from 'react-router-dom';
+import { useGlobalContext } from '../../context/globalContext';
 
 const Carousel = () => {
+  const { user } = useGlobalContext();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
+    if (!user) return;
+    const token = user.accessToken;
     const allProductsUrl = 'https://34.29.92.215/api/1.1/user/view/history';
-    const token =
-      'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInVzZXJSb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcxMTg1NzU4OCwiZXhwIjoxNzEyNzIxNTg4fQ.Xsqx9VNXmqCvJOxaJ9s-7n-6_vCQIGrKCuHCo4mvkabeQlFsdNQUnF1f_XwsVB3_eWKOWCbYAYB2vX1ciZzsDg';
     const headers = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
@@ -22,7 +24,7 @@ const Carousel = () => {
       setProducts(data);
     }
     getProducts(allProductsUrl, headers);
-  }, []);
+  }, [user]);
 
   const slideRef = useRef(null);
 
@@ -74,6 +76,21 @@ const Carousel = () => {
       ? setIsLeftArrowHover(false)
       : setRightArrowHover(false);
   };
+
+  const handleReRenderCarousel = () => {
+    const token = user.accessToken;
+    const allProductsUrl = 'https://34.29.92.215/api/1.1/user/view/history';
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+    async function getProducts(url, headers) {
+      const response = await fetch(url, { headers });
+      const data = await response.json();
+      setProducts(data);
+    }
+    getProducts(allProductsUrl, headers);
+  };
   return (
     <section className="w-[960px] h-[380px] flex items-center justify-center relative">
       <div
@@ -102,7 +119,11 @@ const Carousel = () => {
           className={`container flex gap-[33px] duration-700 ease-in-out`}
         >
           {products.map((product, index) => (
-            <Link key={index} to={`/products/${product.product_id}`}>
+            <Link
+              key={index}
+              to={`/products/${product.product_id}`}
+              onClick={handleReRenderCarousel}
+            >
               <div className={`content w-[${imgWidth}px] flex-shrink-0 mt-6 `}>
                 <img
                   className="w-[200px]"
