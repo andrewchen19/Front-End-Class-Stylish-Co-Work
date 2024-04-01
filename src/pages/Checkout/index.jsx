@@ -1,12 +1,20 @@
-import { useContext, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import Button from '../../components/Button';
-import { AuthContext } from '../../context/authContext';
-import { CartContext } from '../../context/cartContext';
-import api from '../../utils/api';
-import tappay from '../../utils/tappay';
-import Cart from './Cart';
+import { useContext, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import Button from "../../components/Button";
+import { AuthContext } from "../../context/authContext";
+import { CartContext } from "../../context/cartContext";
+import api from "../../utils/api";
+import tappay from "../../utils/tappay";
+import Cart from "./Cart";
+import { useGlobalContext } from "../../context/globalContext";
+import { RiCoupon3Line } from "react-icons/ri";
+
+import yellowCoin from "../../assets/coin_get.png";
+
+//component
+import CouponsModal from "./CouponsModal";
+import { BackDrop } from "./CouponsModal";
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -22,44 +30,41 @@ const Wrapper = styled.div`
 `;
 
 const GrayBlock = styled.div`
-  padding: 22px 30px;
+  padding: 22px 60px;
   margin-top: 26px;
   background-color: #e8e8e8;
-  display: flex;
-  align-items: center;
+  color: #3f3a3a;
+  /* display: flex;
+  flex-direction: column; */
   line-height: 19px;
   font-size: 16px;
 
   @media screen and (max-width: 1279px) {
     padding: 10px 10px 20px;
-    flex-direction: column;
-    align-items: flex-start;
+    /* align-items: flex-start; */
     font-size: 14px;
     line-height: 17px;
   }
 `;
 
 const Label = styled.label`
-  color: #3f3a3a;
-  margin-left: 30px;
+  /* color: #3f3a3a; */
+  /* margin-left: 30px;
 
   @media screen and (max-width: 1279px) {
     margin-left: 0;
-  }
+  } */
 `;
 
 const Select = styled.select`
   width: 171px;
   height: 30px;
-  margin-left: 20px;
   padding-left: 17px;
   border-radius: 8px;
   border: solid 1px #979797;
   background-color: #f3f3f3;
 
   & + ${Label} {
-    margin-left: 82px;
-
     @media screen and (max-width: 1279px) {
       margin-left: 0;
       margin-top: 20px;
@@ -71,6 +76,26 @@ const Select = styled.select`
     margin-top: 10px;
     width: 100%;
   }
+`;
+
+const DeliveryAndPayContainer = styled.div`
+  width: 660px;
+  display: flex;
+  gap: 82px;
+  margin-top: 5px;
+`;
+
+const DeliveryWrapper = styled.div`
+  width: 285px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`;
+const PaymentWrapper = styled.div`
+  width: 285px;
+  align-items: center;
+  display: flex;
+  gap: 20px;
 `;
 
 const Note = styled.div`
@@ -137,7 +162,7 @@ const FormControl = styled.input`
   width: 574px;
   height: 30px;
   border-radius: 8px;
-  border: solid 1px ${({ invalid }) => invalid ? '#CB4042' : '#979797'};
+  border: solid 1px ${({ invalid }) => (invalid ? "#CB4042" : "#979797")};
 
   @media screen and (max-width: 1279px) {
     margin-top: 10px;
@@ -209,6 +234,13 @@ const SubtotalPrice = styled(Price)`
 
 const ShippingPrice = styled(Price)`
   margin-top: 20px;
+
+  @media screen and (max-width: 1279px) {
+    margin-top: 20px;
+  }
+`;
+const DiscountPrice = styled(Price)`
+  margin-top: 20px;
   padding-bottom: 20px;
   border-bottom: 1px solid #3f3a3a;
 
@@ -254,37 +286,91 @@ const PriceValue = styled.div`
 
 const formInputs = [
   {
-    label: '收件人姓名',
-    key: 'name',
-    text: '務必填寫完整收件人姓名，避免包裹無法順利簽收',
+    label: "收件人姓名",
+    key: "name",
+    text: "務必填寫完整收件人姓名，避免包裹無法順利簽收",
   },
-  { label: 'Email', key: 'email' },
-  { label: '手機', key: 'phone' },
-  { label: '地址', key: 'address' },
+  { label: "Email", key: "email" },
+  { label: "手機", key: "phone" },
+  { label: "地址", key: "address" },
 ];
 
 const timeOptions = [
   {
-    label: '08:00-12:00',
-    value: 'morning',
+    label: "08:00-12:00",
+    value: "morning",
   },
   {
-    label: '14:00-18:00',
-    value: 'afternoon',
+    label: "14:00-18:00",
+    value: "afternoon",
   },
   {
-    label: '不指定',
-    value: 'anytime',
+    label: "不指定",
+    value: "anytime",
   },
 ];
 
+const DiscountWrapper = styled.div`
+  width: 660px;
+  display: flex;
+  gap: 82px;
+`;
+
+const CouponSelect = styled.div`
+  width: 285px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const CoinUseSelect = styled.div`
+  width: 285px;
+  display: flex;
+  align-items: center;
+`;
+
 function Checkout() {
+  // ↓ co-work adjustment
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [discount, setDiscount] = useState({
+    coupon_id: "",
+    type: "FIXED",
+    discount_value: 0,
+  });
+
+  const [paymentDiscount, setPaymentDiscount] = useState(0);
+
+  const [discountContext, setDiscountContext] = useState("結帳折抵 0 元");
+
+  const [allCoupons, setAllCoupons] = useState([]);
+  const { user } = useGlobalContext();
+  useEffect(() => {
+    if (!user) return;
+    const token = user.accessToken;
+    const allCouponsUrl =
+      "https://34.29.92.215/api/1.1/user/available-coupons ";
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+
+    async function getCoupons(url, headers) {
+      const response = await fetch(url, { headers });
+      const couponsData = await response.json();
+      setAllCoupons(couponsData);
+    }
+    getCoupons(allCouponsUrl, headers);
+  }, []);
+
+  // ↑ co-work adjustment
   const [recipient, setRecipient] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    time: '',
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    time: "",
   });
   const [invalidFields, setInvalidFields] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -305,7 +391,7 @@ function Checkout() {
         cardExpirationDateRef.current,
         cardCCVRef.current
       );
-    }
+    };
     setupTappay();
   }, []);
 
@@ -313,52 +399,63 @@ function Checkout() {
     (prev, item) => prev + item.price * item.qty,
     0
   );
+  useEffect(() => {
+    const paymentDiscount =
+      discount.type === "FIXED"
+        ? discount.discount_value
+        : Math.floor(
+            ((10 - discount.discount_value) / 10) * (subtotal + freight)
+          );
+    setPaymentDiscount(paymentDiscount);
+  }, [discount, subtotal]);
 
   const freight = 30;
 
   async function checkout() {
     try {
-      setLoading(true);      
+      setLoading(true);
 
       const token = isLogin ? jwtToken : await login();
 
       if (!token) {
-        window.alert('請登入會員');
+        window.alert("請登入會員");
         return;
       }
 
       if (cartItems.length === 0) {
-        window.alert('尚未選購商品');
+        window.alert("尚未選購商品");
         return;
       }
-  
+
       if (Object.values(recipient).some((value) => !value)) {
-        window.alert('請填寫完整訂購資料');
-        setInvalidFields(Object.keys(recipient).filter(key => !recipient[key]))
+        window.alert("請填寫完整訂購資料");
+        setInvalidFields(
+          Object.keys(recipient).filter((key) => !recipient[key])
+        );
         formRef.current.scrollIntoView({
           behavior: "smooth",
           block: "center",
         });
         return;
       }
-  
+
       if (!tappay.canGetPrime()) {
-        window.alert('付款資料輸入有誤');
+        window.alert("付款資料輸入有誤");
         return;
       }
-  
+
       const result = await tappay.getPrime();
       if (result.status !== 0) {
-        window.alert('付款資料輸入有誤');
+        window.alert("付款資料輸入有誤");
         return;
       }
-  
+
       const { data } = await api.checkout(
         {
           prime: result.card.prime,
           order: {
-            shipping: 'delivery',
-            payment: 'credit_card',
+            shipping: "delivery",
+            payment: "credit_card",
             subtotal,
             freight,
             total: subtotal + freight,
@@ -368,9 +465,9 @@ function Checkout() {
         },
         token
       );
-      window.alert('付款成功');
+      window.alert("付款成功");
       setCartItems([]);
-      navigate('/thankyou', { state: { orderNumber: data.number } });
+      navigate("/thankyou", { state: { orderNumber: data.number } });
     } catch (err) {
       console.log(err);
     } finally {
@@ -379,17 +476,59 @@ function Checkout() {
   }
 
   return (
+    // ↓ co-work adjustment
     <Wrapper>
+      {isModalOpen && allCoupons && (
+        <>
+          <BackDrop
+            onClick={() => {
+              setIsModalOpen(false);
+            }}
+          />
+          <CouponsModal
+            allCoupons={allCoupons}
+            onSubmit={setDiscount}
+            setDiscountContext={setDiscountContext}
+            onClose={() => {
+              setIsModalOpen(false);
+            }}
+          />
+        </>
+      )}
+
       <Cart />
       <GrayBlock>
-        <Label>配送國家</Label>
-        <Select>
-          <option>臺灣及離島</option>
-        </Select>
-        <Label>付款方式</Label>
-        <Select>
-          <option>信用卡付款</option>
-        </Select>
+        <DiscountWrapper>
+          <CouponSelect onClick={() => setIsModalOpen(true)}>
+            <RiCoupon3Line fill="#8b572a" />
+            <p className="selection font-bold text-primary  hover:text-secondary hover:cursor-pointer">
+              選擇優惠券
+            </p>
+            <p className="pl-4 text-[18px]">{discountContext}</p>
+          </CouponSelect>
+
+          <CoinUseSelect>
+            <p>使用</p>
+            <img className="w-[40px]" src={yellowCoin} alt="use_tokens" />
+            <p>幣折抵</p>
+          </CoinUseSelect>
+        </DiscountWrapper>
+        {/* ↑ co-work adjustment */}
+
+        <DeliveryAndPayContainer>
+          <DeliveryWrapper>
+            <Label>配送國家</Label>
+            <Select>
+              <option>臺灣及離島</option>
+            </Select>
+          </DeliveryWrapper>
+          <PaymentWrapper>
+            <Label>付款方式</Label>
+            <Select>
+              <option>信用卡付款</option>
+            </Select>
+          </PaymentWrapper>
+        </DeliveryAndPayContainer>
       </GrayBlock>
       <Note>
         ※ 提醒您：
@@ -455,12 +594,19 @@ function Checkout() {
         <Currency>NT.</Currency>
         <PriceValue>{freight}</PriceValue>
       </ShippingPrice>
+      <DiscountPrice>
+        <PriceName>折扣金額</PriceName>
+        <Currency>NT.</Currency>
+        <PriceValue>{paymentDiscount}</PriceValue>
+      </DiscountPrice>
       <TotalPrice>
         <PriceName>應付金額</PriceName>
         <Currency>NT.</Currency>
-        <PriceValue>{subtotal + freight}</PriceValue>
+        <PriceValue>{subtotal + freight - paymentDiscount}</PriceValue>
       </TotalPrice>
-      <Button loading={loading} onClick={checkout}>確認付款</Button>
+      <Button loading={loading} onClick={checkout}>
+        確認付款
+      </Button>
     </Wrapper>
   );
 }

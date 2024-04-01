@@ -9,6 +9,7 @@ import logo from "./logo.png";
 import profileMobile from "./profile-mobile.png";
 import profile from "./profile.png";
 import search from "./search.png";
+import { useGlobalContext } from "../../context/globalContext";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -18,7 +19,7 @@ const Wrapper = styled.div`
   width: 100%;
   padding: 0 54px 0 60px;
   border-bottom: 40px solid #313538;
-  z-index: 99;
+  z-index: 5;
   background-color: white;
   display: flex;
   align-items: center;
@@ -194,14 +195,14 @@ const PageLinkCartIcon = styled(PageLinkIcon)`
   }
 `;
 
-const PageLinkProfileIcon = styled(PageLinkIcon)`
-  background-image: url(${({ url }) => url ?? profile});
-  border-radius: 50%;
+// const PageLinkProfileIcon = styled(PageLinkIcon)`
+//   background-image: url(${({ url }) => url ?? profile});
+//   border-radius: 50%;
 
-  @media screen and (max-width: 1279px) {
-    background-image: url(${profileMobile});
-  }
-`;
+//   @media screen and (max-width: 1279px) {
+//     background-image: url(${profileMobile});
+//   }
+// `;
 
 const PageLinkIconNumber = styled.div`
   position: absolute;
@@ -242,15 +243,31 @@ const categories = [
 
 function Header() {
   const [inputValue, setInputValue] = useState("");
-  const { user } = useContext(AuthContext);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  // const { user } = useContext(AuthContext);
   const { cartCount } = useContext(CartContext);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const category = searchParams.get("category");
+  const { user } = useGlobalContext();
 
   useEffect(() => {
     if (category) setInputValue("");
   }, [category]);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth < 1280);
+    };
+
+    checkScreenSize();
+
+    window.addEventListener("resize", checkScreenSize);
+
+    return () => {
+      window.removeEventListener("resize", checkScreenSize);
+    };
+  }, []);
 
   return (
     <Wrapper>
@@ -283,13 +300,27 @@ function Header() {
       />
       <PageLinks>
         <PageLink to="/checkout">
-          <PageLinkCartIcon icon={cart}>
+          <PageLinkCartIcon $icon={cart}>
             <PageLinkIconNumber>{cartCount}</PageLinkIconNumber>
           </PageLinkCartIcon>
           <PageLinkText>購物車</PageLinkText>
         </PageLink>
         <PageLink to="/profile">
-          <PageLinkProfileIcon icon={profile} />
+          {user ? (
+            <img
+              src={`https://3.225.61.15${user.picture}`}
+              alt="user-img"
+              className={`${
+                isSmallScreen ? "w-9 h-9" : "w-11 h-11"
+              } cursor-pointer`}
+            />
+          ) : (
+            <img
+              src={isSmallScreen ? profileMobile : profile}
+              alt="profile-img"
+              className="w-11 h-11 cursor-pointer"
+            />
+          )}
           <PageLinkText>會員</PageLinkText>
         </PageLink>
       </PageLinks>

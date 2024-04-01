@@ -1,8 +1,19 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import styled from 'styled-components';
-import api from '../../utils/api';
-import ProductVariants from './ProductVariants';
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import styled from "styled-components";
+import api from "../../utils/api";
+import ProductVariants from "./ProductVariants";
+import Carousel from "./Carousel";
+import { toast } from "react-toastify";
+import { useGlobalContext } from "../../context/globalContext";
+import axios from "axios";
+
+import {
+  AiOutlineLike,
+  AiFillLike,
+  AiOutlineDislike,
+  AiFillDislike,
+} from "react-icons/ai";
 
 const Wrapper = styled.div`
   max-width: 960px;
@@ -68,6 +79,8 @@ const Price = styled.div`
   color: #3f3a3a;
   padding-bottom: 20px;
   border-bottom: 1px solid #3f3a3a;
+
+  position: relative;
 
   @media screen and (max-width: 1279px) {
     line-height: 24px;
@@ -141,7 +154,7 @@ const StoryTitle = styled.div`
   }
 
   &::after {
-    content: '';
+    content: "";
     height: 1px;
     flex-grow: 1;
     background-color: #3f3a3a;
@@ -193,15 +206,111 @@ function Product() {
   const [product, setProduct] = useState();
   const { id } = useParams();
 
+  const { user } = useGlobalContext();
+
+  // new state
+  const [isLike, setIsLike] = useState(false);
+  const [isDislike, setIsDislike] = useState(false);
+  const [value, setValue] = useState("");
+  const [likeAmount, setLikeAmount] = useState(999);
+  const [dislikeAmount, setDislikeAmount] = useState(100);
+
   useEffect(() => {
+    const token = user ? user.accessToken : "";
     async function getProduct() {
-      const { data } = await api.getProduct(id);
+      const { data } = await api.getProduct(id, token);
       setProduct(data);
     }
     getProduct();
   }, [id]);
 
+  useEffect(() => {
+    if (!value) return;
+
+    console.log(value);
+
+    const delayedFunction = async () => {
+      console.log(value);
+      console.log("execute delayed");
+
+      // const xxx = axios.post("")
+    };
+
+    const timeoutId = setTimeout(delayedFunction, 5000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [value]);
+
   if (!product) return null;
+
+  const likeHandler = () => {
+    const addLike = !isLike && !isDislike;
+    const cancelLike = isLike && !isDislike;
+    const addLikeAndCancelDislike = !isLike && isDislike;
+
+    if (!user) {
+      toast.error("Please log in first 😬");
+      return;
+    }
+
+    if (addLike) {
+      setIsLike(true);
+      setLikeAmount(likeAmount + 1);
+      setValue("good");
+    }
+
+    if (cancelLike) {
+      setIsLike(false);
+      setLikeAmount(likeAmount - 1);
+      setValue("nothing");
+    }
+
+    if (addLikeAndCancelDislike) {
+      setIsLike(true);
+      setIsDislike(false);
+      setLikeAmount(likeAmount + 1);
+      setDislikeAmount(dislikeAmount - 1);
+      setValue("good");
+    }
+  };
+  const dislikeHandler = () => {
+    const addDislike = !isLike && !isDislike;
+    const cancelDislike = !isLike && isDislike;
+    const addDislikeAndCancelLike = isLike && !isDislike;
+
+    if (!user) {
+      toast.error("Please log in first 😬");
+      return;
+    }
+
+    if (addDislike) {
+      setIsDislike(true);
+      setDislikeAmount(dislikeAmount + 1);
+      setValue("bad");
+    }
+
+    if (cancelDislike) {
+      setIsDislike(false);
+      setDislikeAmount(dislikeAmount - 1);
+      setValue("nothing");
+    }
+
+    if (addDislikeAndCancelLike) {
+      setIsDislike(true);
+      setIsLike(false);
+      setDislikeAmount(dislikeAmount + 1);
+      setLikeAmount(likeAmount - 1);
+      setValue("bad");
+    }
+  };
+  const amountTransform = (amount) => {
+    if (amount >= 1000) {
+      return `${(amount / 1000).toFixed(1)}K`;
+    }
+    return amount;
+  };
 
   return (
     <Wrapper>
@@ -209,7 +318,35 @@ function Product() {
       <Details>
         <Title>{product.title}</Title>
         <ID>{product.id}</ID>
-        <Price>TWD.{product.price}</Price>
+        <Price>
+          TWD.{product.price}
+          <button
+            className="absolute bottom-[20px] right-[80px] bg-gray-100 h-6 px-2 flex items-center gap-2 rounded-md hover:bg-gray-200 font-normal text-base"
+            title="我喜歡"
+            onClick={() => likeHandler(product.id)}
+          >
+            {isLike ? (
+              <AiFillLike className="w-5 h-5" fill="#3f3a3a" />
+            ) : (
+              <AiOutlineLike className="w-4 h-4" />
+            )}
+
+            {amountTransform(likeAmount)}
+          </button>
+          <button
+            className="absolute bottom-[20px] right-0 bg-gray-100 h-6 px-2 flex items-center gap-2 rounded-md hover:bg-gray-200 font-normal text-base"
+            title="我不喜歡"
+            onClick={() => dislikeHandler(product.id)}
+          >
+            {isDislike ? (
+              <AiFillDislike className="w-5 h-5" fill="#3f3a3a" />
+            ) : (
+              <AiOutlineDislike className="w-4 h-4" />
+            )}
+            {amountTransform(dislikeAmount)}
+          </button>
+        </Price>
+
         <ProductVariants product={product} />
         <Note>{product.note}</Note>
         <Texture>{product.texture}</Texture>
@@ -226,6 +363,14 @@ function Product() {
           <Image src={image} key={index} />
         ))}
       </Images>
+      {user && (
+        <>
+          <Story>
+            <StoryTitle>再逛一次</StoryTitle>
+          </Story>
+          <Carousel />
+        </>
+      )}
     </Wrapper>
   );
 }

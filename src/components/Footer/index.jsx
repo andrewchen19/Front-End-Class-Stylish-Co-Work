@@ -1,7 +1,7 @@
-import styled from 'styled-components';
-import facebook from './facebook.png';
-import line from './line.png';
-import twitter from './twitter.png';
+import styled from "styled-components";
+import facebook from "./facebook.png";
+import line from "./line.png";
+import twitter from "./twitter.png";
 
 const Wrapper = styled.div`
   position: absolute;
@@ -62,12 +62,12 @@ const SiteLink = styled.div`
   }
 
   & + &::before {
-    content: '|';
+    content: "|";
     position: absolute;
     left: 0;
 
     @media screen and (max-width: 1279px) {
-      content: '';
+      content: "";
     }
   }
 `;
@@ -125,7 +125,7 @@ function Footer() {
     <Wrapper>
       <Content>
         <SiteLinks>
-          {['關於 Stylish', '服務條款', '隱私政策', '聯絡我們', 'FAQ'].map(
+          {["關於 Stylish", "服務條款", "隱私政策", "聯絡我們", "FAQ"].map(
             (text, index) => (
               <SiteLink key={index}>{text}</SiteLink>
             )
@@ -133,7 +133,7 @@ function Footer() {
         </SiteLinks>
         <SocialLinks>
           {[line, twitter, facebook].map((icon, index) => (
-            <SocialLink key={index} icon={icon} />
+            <SocialLink key={index} $icon={icon} />
           ))}
         </SocialLinks>
         <Copywright>© 2022. All rights reserved.</Copywright>

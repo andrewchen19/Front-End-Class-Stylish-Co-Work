@@ -1,8 +1,8 @@
-import { useContext, useState } from 'react';
-import styled from 'styled-components';
-import { CartContext } from '../../context/cartContext';
-import add from './add.png';
-import minus from './minus.png';
+import { useContext, useState } from "react";
+import styled from "styled-components";
+import { CartContext } from "../../context/cartContext";
+import add from "./add.png";
+import minus from "./minus.png";
 
 const Option = styled.div`
   display: flex;
@@ -21,7 +21,7 @@ const OptionName = styled.div`
     font-size: 14px;
     letter-spacing: 2.8px;
 
-    ${(props) => props.hideOnMobile && 'display: none;'}
+    ${(props) => props.hideOnMobile && "display: none;"}
   }
 `;
 
@@ -34,7 +34,7 @@ const Color = styled.div`
   cursor: pointer;
   margin-left: 21px;
   background-color: ${(props) => props.$colorCode};
-  ${(props) => props.$isSelected && 'outline: 1px solid #979797;'}
+  ${(props) => props.$isSelected && "outline: 1px solid #979797;"}
 
   & + & {
     margin-left: 15px;
@@ -44,16 +44,16 @@ const Color = styled.div`
 const Size = styled.div`
   width: 34px;
   height: 34px;
-  background-color: ${(props) => (props.$isSelected ? 'black' : '#ececec')};
-  color: ${(props) => (props.$isSelected ? 'white' : '#3f3a3a')};
+  background-color: ${(props) => (props.$isSelected ? "black" : "#ececec")};
+  color: ${(props) => (props.$isSelected ? "white" : "#3f3a3a")};
   border-radius: 50%;
   font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-left: 22px;
-  cursor: ${(props) => (props.$isDisabled ? ' not-allowed' : 'pointer')};
-  ${(props) => props.$isDisabled && 'opacity: 0.25;'}
+  cursor: ${(props) => (props.$isDisabled ? " not-allowed" : "pointer")};
+  ${(props) => props.$isDisabled && "opacity: 0.25;"}
 
   & + & {
     margin-left: 20px;
@@ -141,15 +141,15 @@ function ProductVariants({ product }) {
 
   function addToCart() {
     if (!selectedColorCode) {
-      window.alert('請選擇顏色');
+      window.alert("請選擇顏色");
       return;
     }
     if (!selectedSize) {
-      window.alert('請選擇尺寸');
+      window.alert("請選擇尺寸");
       return;
     }
     if (quantity === 0) {
-      window.alert('請選擇數量');
+      window.alert("請選擇數量");
       return;
     }
 
@@ -189,14 +189,14 @@ function ProductVariants({ product }) {
     setSelectedColorCode();
     setSelectedSize();
     setQuantity(0);
-    window.alert('已加入商品');
+    window.alert("已加入商品");
   }
 
   function addToCartButtonText() {
-    if (!selectedColorCode) return '請選擇顏色';
-    if (!selectedSize) return '請選擇尺寸';
-    if (quantity === 0) return '請選擇數量';
-    return '加入購物車';
+    if (!selectedColorCode) return "請選擇顏色";
+    if (!selectedSize) return "請選擇尺寸";
+    if (quantity === 0) return "請選擇數量";
+    return "加入購物車";
   }
 
   return (
