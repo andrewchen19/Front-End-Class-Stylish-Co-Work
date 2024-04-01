@@ -1,14 +1,13 @@
 import { Outlet } from "react-router-dom";
 import { createGlobalStyle } from "styled-components";
 import { Reset } from "styled-reset";
-import { useState, useEffect } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import CustomerService from "./components/CostomerService/CostomerService";
 import { AuthContextProvider } from "./context/authContext";
 import { CartContextProvider } from "./context/cartContext";
 
-import useSocket from "./utils/hooks/useSocket";
+// import useSocket from "./utils/hooks/useSocket";
 
 import "./index.css";
 
@@ -33,8 +32,9 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 function App() {
-  const { serviceMsg, isConnected } = useSocket();
-  console.log(serviceMsg);
+  // const { serviceMsg, isConnected } = useSocket();
+
+  // console.log(serviceMsg);
   return (
     <>
       <Reset />
@@ -43,7 +43,8 @@ function App() {
         <CartContextProvider>
           <Header />
           <Outlet />
-          <CustomerService serviceMsg={serviceMsg} isConnected={isConnected} />
+          {/* <CustomerService serviceMsg={serviceMsg} isConnected={isConnected} /> */}
+          <CustomerService />
           <Footer />
         </CartContextProvider>
       </AuthContextProvider>
