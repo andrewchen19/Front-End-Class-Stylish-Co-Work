@@ -63,6 +63,18 @@ const api = {
     });
     return await response.json();
   },
+  async getCostomerServiceQA() {
+    const response = await fetch(
+      "https://3.209.143.199/api/1.0/customerService/getQaData"
+    );
+    if (!response.ok) {
+      throw new Error(
+        "getCostomerServiceQA response was not ok:" + response.status
+      );
+    } else {
+      return await response.json();
+    }
+  },
 };
 
 export default api;
