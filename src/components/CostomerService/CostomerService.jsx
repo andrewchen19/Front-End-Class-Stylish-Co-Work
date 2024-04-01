@@ -2,12 +2,12 @@ import styled from "styled-components";
 import StaffItem, { Staff, Avatar, StaffConversation } from "./StaffStyle";
 import CustomerItem from "./CusotmerStyle";
 import { useState, useEffect, useRef, Fragment } from "react";
-import { socket } from "../../utils/socket";
-import api from "../../utils/api";
 import useSnapshot from "../../utils/hooks/useSnapshot";
+import { db } from "../../utils/firebase";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 
 const ControlButton = styled.button`
-  background-image: url("https://cdn.discordapp.com/attachments/1222856873397715045/1223120205794770994/c9524ded74e6bc45.png?ex=6618b275&is=66063d75&hm=544585030756104624087698748d14c921895fdcee7edca26b3efd1b841da760&");
+  background-image: url("https://cdn.discordapp.com/attachments/1222856873397715045/1224348056779227217/user.png?ex=661d29fc&is=660ab4fc&hm=27f715a2fa83f0f2b6876eacc65bbe696163be605bca7f21880fae34a76ad528&");
   background-size: 100% 100%;
   position: fixed;
   width: 60px;
@@ -128,186 +128,6 @@ const YesNoButton = styled.button`
   }
 `;
 
-//SuppoptStaff
-// export default function CustomerService({ serviceMsg, isConnected })
-// export default function CustomerService({ serviceMsg, isConnected }) {
-//   const [allConversation, setAllConversation] = useState([]);
-
-//   //initial get QA
-//   useEffect(() => {
-//     (async () => {
-//       const QA = await api.getCostomerServiceQA();
-//       const newQa = (
-//         <Fragment>
-//           <StaffItem>
-//             <StaffConversation>
-//               {QA.data.map((qna, index) => (
-//                 <QuestionButton
-//                   onClick={() => handleQuestion(qna.question, qna.answer)}
-//                   key={index}
-//                   className="hover:bg-secondary hover:text-white hover:border-none"
-//                 >
-//                   {qna.question}
-//                 </QuestionButton>
-//               ))}
-//             </StaffConversation>
-//           </StaffItem>
-//         </Fragment>
-//       );
-//       setAllConversation((prevchat) => [...prevchat, newQa]);
-//     })();
-//   }, []);
-
-//   // Receive msg from real service
-//   useEffect(() => {
-//     setAllConversation((prevServiceMsg) => [
-//       ...prevServiceMsg,
-//       <Staff>
-//         <Avatar />
-//         <ServiceMsg>{serviceMsg}</ServiceMsg>
-//       </Staff>,
-//     ]);
-//   }, [serviceMsg]);
-
-//   //Send a message to customer service.
-//   const [value, setValue] = useState("");
-//   const [isLoading, setIsLoading] = useState(false);
-
-//   function onSubmit(event) {
-//     event.preventDefault();
-//     setAllConversation((prevAllConvert) => [
-//       ...prevAllConvert,
-//       <CustomerMsg>{value}</CustomerMsg>,
-//     ]);
-//     setIsLoading(true);
-//     socket.timeout(5000).emit("/app/chat.sendMessage", value, () => {
-//       setIsLoading(false);
-//     });
-//     setValue("");
-//   }
-
-//   // Control the screen
-//   const chatBox = useRef(null);
-//   const [chatboxDisplay, setChatboxDisplay] = useState(false);
-
-//   function controlChatbox() {
-//     setChatboxDisplay((prevState) => !prevState);
-//   }
-//   function scrollToBottom() {
-//     if (chatBox.current) {
-//       chatBox.current.scrollTop = chatBox.current.scrollHeight;
-//     }
-//   }
-//   useEffect(() => {
-//     scrollToBottom();
-//   }, [allConversation]);
-
-//   function handleQuestion(question, answer) {
-//     setAllConversation((prevchat) => [
-//       ...prevchat,
-//       <Fragment>
-//         <CustomerItem>
-//           <span>{question}?</span>
-//         </CustomerItem>
-//         <StaffItem>
-//           <StaffConversation>
-//             <P>{answer}</P>
-//           </StaffConversation>
-//           <StaffConversation>
-//             <P>請問有解決您的問題嗎?</P>
-//             <YesNoButton onClick={() => handleSolveProblem(true)}>
-//               是
-//             </YesNoButton>
-//             <YesNoButton onClick={() => handleSolveProblem(false)}>
-//               否
-//             </YesNoButton>
-//           </StaffConversation>
-//         </StaffItem>
-//       </Fragment>,
-//     ]);
-//   }
-//   function handleSolveProblem(boolean) {
-//     if (boolean) {
-//       setAllConversation((prevchat) => [
-//         ...prevchat,
-//         <Fragment>
-//           <CustomerItem>
-//             <span>是</span>
-//           </CustomerItem>
-//           <StaffItem>
-//             <StaffConversation>
-//               <P>謝謝您使用線上客服系統，很高興能解決您的問題</P>
-//             </StaffConversation>
-//           </StaffItem>
-//         </Fragment>,
-//       ]);
-//     } else {
-//       setAllConversation((prevchat) => [
-//         ...prevchat,
-//         <Fragment>
-//           <CustomerItem>
-//             <span>否</span>
-//           </CustomerItem>
-//           <StaffItem>
-//             <StaffConversation>
-//               <P>
-//                 麻煩聯絡我們：）
-//                 <br />
-//                 聯絡信箱：stylish@stylish.com
-//                 <br />
-//                 聯絡電話：02-2222-2222
-//               </P>
-//             </StaffConversation>
-//           </StaffItem>
-//         </Fragment>,
-//         connectSocket(),
-//       ]);
-//     }
-//   }
-
-//   const [isConnectedLoading, setIsconnectedLoading] = useState(false);
-//   function connectSocket() {
-//     setIsconnectedLoading(true);
-//     setTimeout(() => {
-//       socket.connect();
-//       setIsconnectedLoading(false);
-//     }, 2000);
-//   }
-
-//   return (
-//     <>
-//       <ControlButton
-//         onClick={controlChatbox}
-//         chatboxdisplay={chatboxDisplay.toString()}
-//       ></ControlButton>
-//       <Wrapper chatboxdisplay={chatboxDisplay.toString()}>
-//         <Header>
-//           客服小幫手
-//           <button onClick={controlChatbox}>X</button>
-//         </Header>
-//         <Section ref={chatBox}>
-//           {allConversation.map((permsg, index) => (
-//             <Fragment key={index}>{permsg}</Fragment>
-//           ))}
-//           {isConnectedLoading ? <p>連線客服人員中</p> : <></>}
-//         </Section>
-//         <Form onSubmit={onSubmit}>
-//           <Input
-//             placeholder="請輸入您要尋問的問題"
-//             value={value}
-//             onChange={(e) => setValue(e.target.value)}
-//           />
-//           <Button type="submit" disabled={isLoading}>
-//             發送
-//           </Button>
-//         </Form>
-//       </Wrapper>
-//     </>
-//   );
-// }
-import { db } from "../../utils/firebase";
-import { collection, addDoc, getDocs, Timestamp } from "firebase/firestore";
-
 export default function CustomerService() {
   const [allConversation, setAllConversation] = useState([]);
   const serviceMsg = useSnapshot();
@@ -315,7 +135,7 @@ export default function CustomerService() {
     e.preventDefault();
     try {
       const timestamp = Timestamp.now();
-      const docRef = await addDoc(collection(db, "TestRoom"), {
+      const docRef = await addDoc(collection(db, "messages"), {
         author_id: "Phil",
         content: value,
         timestamp: timestamp,
@@ -325,36 +145,10 @@ export default function CustomerService() {
         <CustomerMsg>{value}</CustomerMsg>,
       ]);
       setValue("");
-      // await updateDoc(doc(docRef), { id: docRef.id });
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   }
-
-  //initial get QA
-  useEffect(() => {
-    (async () => {
-      const QA = await api.getCostomerServiceQA();
-      const newQa = (
-        <Fragment>
-          <StaffItem>
-            <StaffConversation>
-              {QA.data.map((qna, index) => (
-                <QuestionButton
-                  onClick={() => handleQuestion(qna.question, qna.answer)}
-                  key={index}
-                  className=" hover:bg-secondary hover:text-white hover:border-none"
-                >
-                  {qna.question}
-                </QuestionButton>
-              ))}
-            </StaffConversation>
-          </StaffItem>
-        </Fragment>
-      );
-      setAllConversation((prevchat) => [...prevchat, newQa]);
-    })();
-  }, []);
 
   // // Receive msg from real service
   useEffect(() => {
@@ -370,7 +164,6 @@ export default function CustomerService() {
 
   //Send a message to customer service.
   const [value, setValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   // Control the screen
   const chatBox = useRef(null);
@@ -413,7 +206,6 @@ export default function CustomerService() {
     ]);
   }
 
-  const [disableInput, setDisableInput] = useState(true);
   function handleSolveProblem(boolean) {
     if (boolean) {
       setAllConversation((prevchat) => [
@@ -449,7 +241,6 @@ export default function CustomerService() {
           </StaffItem>
         </Fragment>,
       ]);
-      setDisableInput(false);
     }
   }
 
@@ -475,14 +266,11 @@ export default function CustomerService() {
         </Section>
         <Form onSubmit={onSubmit}>
           <Input
-            disabled={disableInput}
             placeholder="請輸入您要尋問的問題"
             value={value}
             onChange={(e) => setValue(e.target.value)}
           />
-          <Button type="submit" disabled={isLoading}>
-            發送
-          </Button>
+          <Button type="submit">發送</Button>
         </Form>
       </Wrapper>
     </>

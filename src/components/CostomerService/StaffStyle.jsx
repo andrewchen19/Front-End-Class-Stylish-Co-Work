@@ -9,9 +9,10 @@ const Staff = styled.div`
 `;
 
 const Avatar = styled.div`
-  background-image: url("https://cdn.discordapp.com/attachments/1222856873397715045/1223120205794770994/c9524ded74e6bc45.png?ex=6618b275&is=66063d75&hm=544585030756104624087698748d14c921895fdcee7edca26b3efd1b841da760&");
+  background-image: url("https://cdn.discordapp.com/attachments/1222856873397715045/1224348056779227217/user.png?ex=661d29fc&is=660ab4fc&hm=27f715a2fa83f0f2b6876eacc65bbe696163be605bca7f21880fae34a76ad528&");
   background-size: 100% 100%;
   width: 40px;
+  min-width: 40px;
   height: 40px;
   border-radius: 25px;
   background-color: #fff;

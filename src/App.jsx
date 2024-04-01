@@ -7,8 +7,6 @@ import CustomerService from "./components/CostomerService/CostomerService";
 import { AuthContextProvider } from "./context/authContext";
 import { CartContextProvider } from "./context/cartContext";
 
-// import useSocket from "./utils/hooks/useSocket";
-
 import "./index.css";
 
 const GlobalStyle = createGlobalStyle`
@@ -32,9 +30,6 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 function App() {
-  // const { serviceMsg, isConnected } = useSocket();
-
-  // console.log(serviceMsg);
   return (
     <>
       <Reset />
@@ -43,7 +38,6 @@ function App() {
         <CartContextProvider>
           <Header />
           <Outlet />
-          {/* <CustomerService serviceMsg={serviceMsg} isConnected={isConnected} /> */}
           <CustomerService />
           <Footer />
         </CartContextProvider>

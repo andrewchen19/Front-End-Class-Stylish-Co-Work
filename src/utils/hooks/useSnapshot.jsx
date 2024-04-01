@@ -5,7 +5,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 const useSnapshot = () => {
   const [serviceMsg, setServiceMsg] = useState("");
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "TestRoom"), (snapshot) => {
+    const unsubscribe = onSnapshot(collection(db, "messages"), (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           const data = change.doc.data();
@@ -20,7 +20,7 @@ const useSnapshot = () => {
     });
 
     return () => unsubscribe(); // 在組件卸載時取消訂閱
-  });
+  }, []);
   return serviceMsg;
 };
 export default useSnapshot;
