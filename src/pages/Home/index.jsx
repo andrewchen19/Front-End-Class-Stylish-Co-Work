@@ -1,5 +1,5 @@
-import Carousel from './Carousel';
-import Products from './Products';
+import Carousel from "./Carousel";
+import Products from "./Products";
 
 function Home() {
   return (
