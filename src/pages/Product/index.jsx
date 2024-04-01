@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import api from "../../utils/api";
 import ProductVariants from "./ProductVariants";
+import Carousel from "./Carousel";
 import { toast } from "react-toastify";
 import { useGlobalContext } from "../../context/globalContext";
 import axios from "axios";
@@ -210,14 +211,14 @@ function Product() {
   // new state
   const [isLike, setIsLike] = useState(false);
   const [isDislike, setIsDislike] = useState(false);
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState("");
   const [likeAmount, setLikeAmount] = useState(999);
   const [dislikeAmount, setDislikeAmount] = useState(100);
 
   useEffect(() => {
+    const token = user ? user.accessToken : "";
     async function getProduct() {
-      const { data } = await api.getProduct(id);
-      // const response = await axios.get(``);
+      const { data } = await api.getProduct(id, token);
       setProduct(data);
     }
     getProduct();
@@ -362,6 +363,14 @@ function Product() {
           <Image src={image} key={index} />
         ))}
       </Images>
+      {user && (
+        <>
+          <Story>
+            <StoryTitle>再逛一次</StoryTitle>
+          </Story>
+          <Carousel />
+        </>
+      )}
     </Wrapper>
   );
 }
