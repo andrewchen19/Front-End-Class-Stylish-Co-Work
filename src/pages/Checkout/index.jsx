@@ -351,7 +351,7 @@ function Checkout() {
 
   useEffect(() => {
     const allCouponsUrl =
-      'http://34.29.92.215:5000/api/1.1/user/available-coupons';
+      'http://34.29.92.215:5000/api/1.1/user/available-coupons'; //待修改
     const token =
       'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInVzZXJSb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcxMTg1NzU4OCwiZXhwIjoxNzEyNzIxNTg4fQ.Xsqx9VNXmqCvJOxaJ9s-7n-6_vCQIGrKCuHCo4mvkabeQlFsdNQUnF1f_XwsVB3_eWKOWCbYAYB2vX1ciZzsDg';
     const headers = {
