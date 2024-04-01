@@ -1,9 +1,11 @@
 import ReactLoading from "react-loading";
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 
 import useInfiniteScroll from "../../utils/hooks/useInfiniteScroll";
 import useProducts from "../../utils/hooks/useProducts";
+import { AiFillLike } from "react-icons/ai";
 
 const Wrapper = styled.div`
   max-width: 1200px;
@@ -17,7 +19,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const Product = styled(Link)`
+const Product = styled.div`
   width: calc((100% - 120px) / 3);
   margin: 0 20px 50px;
   flex-shrink: 0;
@@ -37,6 +39,8 @@ const ProductImage = styled.img`
 const ProductColors = styled.div`
   margin-top: 20px;
   display: flex;
+  justify-content: space-between;
+  position: relative;
 
   @media screen and (max-width: 1279px) {
     margin-top: 8px;
@@ -109,15 +113,35 @@ function Products() {
   });
   useInfiniteScroll(loadMoreProducts);
 
+  // new state
+  const [likeAmount, setLikeAmount] = useState(1000);
+
+  const amountTransform = (amount) => {
+    if (amount >= 1000) {
+      return `${(amount / 1000).toFixed(1)}K`;
+    }
+    return amount;
+  };
+
   return (
     <Wrapper>
       {products.map(({ id, main_image, colors, title, price }) => (
-        <Product key={id} to={`/products/${id}`}>
-          <ProductImage src={main_image} />
+        <Product key={id}>
+          <Link to={`/products/${id}`}>
+            <ProductImage src={main_image} />
+          </Link>
           <ProductColors>
-            {colors.map(({ code }) => (
-              <ProductColor $colorCode={`#${code}`} key={code} />
-            ))}
+            <div className="flex">
+              {colors.map(({ code }) => (
+                <ProductColor $colorCode={`#${code}`} key={code} />
+              ))}
+            </div>
+            <div className="absolute right-0 flex items-center">
+              <AiFillLike fill="#3f3a3a" className="text-[20px] leading-6" />
+              <p className="pl-3 font-medium text-primary">
+                {amountTransform(likeAmount)}
+              </p>
+            </div>
           </ProductColors>
           <ProductTitle>{title}</ProductTitle>
           <ProductPrice>TWD.{price}</ProductPrice>
