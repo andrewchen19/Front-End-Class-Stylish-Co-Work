@@ -5,6 +5,7 @@ import api from "../../utils/api";
 import ProductVariants from "./ProductVariants";
 import { toast } from "react-toastify";
 import { useGlobalContext } from "../../context/globalContext";
+import axios from "axios";
 
 import {
   AiOutlineLike,
@@ -209,13 +210,14 @@ function Product() {
   // new state
   const [isLike, setIsLike] = useState(false);
   const [isDislike, setIsDislike] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(null);
   const [likeAmount, setLikeAmount] = useState(999);
   const [dislikeAmount, setDislikeAmount] = useState(100);
 
   useEffect(() => {
     async function getProduct() {
       const { data } = await api.getProduct(id);
+      // const response = await axios.get(``);
       setProduct(data);
     }
     getProduct();
@@ -224,9 +226,16 @@ function Product() {
   useEffect(() => {
     if (!value) return;
 
-    const delayedFunction = async();
+    console.log(value);
 
-    const timeoutId = setTimeout(delayedFunction, 10000);
+    const delayedFunction = async () => {
+      console.log(value);
+      console.log("execute delayed");
+
+      // const xxx = axios.post("")
+    };
+
+    const timeoutId = setTimeout(delayedFunction, 5000);
 
     return () => {
       clearTimeout(timeoutId);
@@ -248,11 +257,13 @@ function Product() {
     if (addLike) {
       setIsLike(true);
       setLikeAmount(likeAmount + 1);
+      setValue("good");
     }
 
     if (cancelLike) {
       setIsLike(false);
       setLikeAmount(likeAmount - 1);
+      setValue("nothing");
     }
 
     if (addLikeAndCancelDislike) {
@@ -260,6 +271,7 @@ function Product() {
       setIsDislike(false);
       setLikeAmount(likeAmount + 1);
       setDislikeAmount(dislikeAmount - 1);
+      setValue("good");
     }
   };
   const dislikeHandler = () => {
@@ -275,11 +287,13 @@ function Product() {
     if (addDislike) {
       setIsDislike(true);
       setDislikeAmount(dislikeAmount + 1);
+      setValue("bad");
     }
 
     if (cancelDislike) {
       setIsDislike(false);
       setDislikeAmount(dislikeAmount - 1);
+      setValue("nothing");
     }
 
     if (addDislikeAndCancelLike) {
@@ -287,6 +301,7 @@ function Product() {
       setIsLike(false);
       setDislikeAmount(dislikeAmount + 1);
       setLikeAmount(likeAmount - 1);
+      setValue("bad");
     }
   };
   const amountTransform = (amount) => {
