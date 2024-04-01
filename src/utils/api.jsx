@@ -52,7 +52,7 @@ const api = {
   },
   async getCostomerServiceQA() {
     const response = await fetch(
-      "http://3.209.143.199/api/1.0/customerService/getQaData"
+      "https://3.209.143.199/api/1.0/customerService/getQaData"
     );
     if (!response.ok) {
       throw new Error(

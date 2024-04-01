@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Product from "./pages/Product";
 import Profile from "./pages/Profile";
 import ThankYou from "./pages/ThankYou";
+import Socket from "./pages/Socket";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -18,6 +19,7 @@ root.render(
         <Route path="checkout" element={<Checkout />} />
         <Route path="thankyou" element={<ThankYou />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="socket" element={<Socket />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

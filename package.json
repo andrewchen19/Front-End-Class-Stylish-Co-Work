@@ -13,6 +13,7 @@
     "react-dom": "^18.2.0",
     "react-loading": "^2.0.3",
     "react-router-dom": "^6.22.3",
+    "socket.io-client": "^4.7.5",
     "styled-components": "^6.0.0-rc.3",
     "styled-reset": "^4.4.7",
     "vite-plugin-mkcert": "^1.17.5"

@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import SupportStaff from "./Staff";
-import NewConversation from "./NewConversation";
-import { useState, useEffect, useRef } from "react";
+import StaffItem, { Staff, Avatar, StaffConversation } from "./StaffStyle";
+import CustomerItem from "./CusotmerStyle";
+import { useState, useEffect, useRef, Fragment } from "react";
+import { socket } from "../../utils/socket";
 import api from "../../utils/api";
 
 const ControlButton = styled.button`
@@ -57,7 +58,7 @@ const Section = styled.section`
   overflow-y: scroll;
   padding: 0 10px;
 `;
-const InputDiv = styled.div`
+const Form = styled.form`
   display: flex;
   align-items: center;
   padding: 0 10px 0 16px;
@@ -81,40 +82,186 @@ const Button = styled.button`
   border-radius: 8px;
   background-color: #d9d9d9;
 `;
+const CustomerMsg = styled.span`
+  align-self: flex-end;
+  background-color: #ffe5be;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+`;
+
+const ServiceMsg = styled.span`
+  background-color: #fff;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+`;
+const QuestionButton = styled.button`
+  width: auto;
+  text-align: left;
+  height: 45px;
+  background-color: #fff;
+  border: 3px solid #ccc;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  padding: 0 20px;
+`;
+const P = styled.p`
+  line-height: 1.25rem;
+`;
+const YesNoButton = styled.button`
+  width: 50px;
+  height: 30px;
+  background-color: #ddd;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-right: 20px;
+`;
 
 //SuppoptStaff
 
-export default function CustomerService() {
-  const chatBox = useRef(null);
-  const [questions, setQuestions] = useState([]);
-  const [chatboxDisplay, setChatboxDisplay] = useState(false);
-  const [conversation, setConversation] = useState([]);
-  function controlChatbox() {
-    setChatboxDisplay((prevState) => !prevState);
-  }
+export default function CustomerService({ serviceMsg, isConnected }) {
+  const [allConversation, setAllConversation] = useState([]);
+
+  //initial get QA
   useEffect(() => {
     (async () => {
       const QA = await api.getCostomerServiceQA();
-      setQuestions(QA.data);
+      const newQa = (
+        <Fragment>
+          <StaffItem>
+            <StaffConversation>
+              {QA.data.map((qna, index) => (
+                <QuestionButton
+                  onClick={() => handleQuestion(qna.question, qna.answer)}
+                  key={index}
+                  className="hover:bg-secondary hover:text-white hover:border-none"
+                >
+                  {qna.question}
+                </QuestionButton>
+              ))}
+            </StaffConversation>
+          </StaffItem>
+        </Fragment>
+      );
+      setAllConversation((prevchat) => [...prevchat, newQa]);
     })();
   }, []);
-  console.log(questions);
 
+  // Receive msg from real service
+  useEffect(() => {
+    setAllConversation((prevServiceMsg) => [
+      ...prevServiceMsg,
+      <Staff>
+        <Avatar />
+        <ServiceMsg>{serviceMsg}</ServiceMsg>
+      </Staff>,
+    ]);
+  }, [serviceMsg]);
+
+  //Send a message to customer service.
+  const [value, setValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  function onSubmit(event) {
+    event.preventDefault();
+    setAllConversation((prevAllConvert) => [
+      ...prevAllConvert,
+      <CustomerMsg>{value}</CustomerMsg>,
+    ]);
+    setIsLoading(true);
+    socket.timeout(5000).emit("/app/chat.sendMessage", value, () => {
+      setIsLoading(false);
+    });
+    setValue("");
+  }
+
+  // Control the screen
+  const chatBox = useRef(null);
+  const [chatboxDisplay, setChatboxDisplay] = useState(false);
+
+  function controlChatbox() {
+    setChatboxDisplay((prevState) => !prevState);
+  }
   function scrollToBottom() {
     if (chatBox.current) {
       chatBox.current.scrollTop = chatBox.current.scrollHeight;
     }
   }
-
   useEffect(() => {
     scrollToBottom();
-  }, [conversation]);
+  }, [allConversation]);
 
   function handleQuestion(question, answer) {
-    setConversation((prevConversation) => [
-      ...prevConversation,
-      { question, answer },
+    setAllConversation((prevchat) => [
+      ...prevchat,
+      <Fragment>
+        <CustomerItem>
+          <span>{question}?</span>
+        </CustomerItem>
+        <StaffItem>
+          <StaffConversation>
+            <P>{answer}</P>
+          </StaffConversation>
+          <StaffConversation>
+            <P>請問有解決您的問題嗎?</P>
+            <YesNoButton onClick={() => handleSolveProblem(true)}>
+              是
+            </YesNoButton>
+            <YesNoButton onClick={() => handleSolveProblem(false)}>
+              否
+            </YesNoButton>
+          </StaffConversation>
+        </StaffItem>
+      </Fragment>,
     ]);
+  }
+  function handleSolveProblem(boolean) {
+    if (boolean) {
+      setAllConversation((prevchat) => [
+        ...prevchat,
+        <Fragment>
+          <CustomerItem>
+            <span>是</span>
+          </CustomerItem>
+          <StaffItem>
+            <StaffConversation>
+              <P>謝謝您使用線上客服系統，很高興能解決您的問題</P>
+            </StaffConversation>
+          </StaffItem>
+        </Fragment>,
+      ]);
+    } else {
+      setAllConversation((prevchat) => [
+        ...prevchat,
+        <Fragment>
+          <CustomerItem>
+            <span>否</span>
+          </CustomerItem>
+          <StaffItem>
+            <StaffConversation>
+              <P>
+                麻煩聯絡我們：）
+                <br />
+                聯絡信箱：stylish@stylish.com
+                <br />
+                聯絡電話：02-2222-2222
+              </P>
+            </StaffConversation>
+          </StaffItem>
+        </Fragment>,
+        connectSocket(),
+      ]);
+    }
+  }
+
+  const [isConnectedLoading, setIsconnectedLoading] = useState(false);
+  function connectSocket() {
+    setIsconnectedLoading(true);
+    setTimeout(() => {
+      socket.connect();
+      setIsconnectedLoading(false);
+    }, 2000);
   }
 
   return (
@@ -129,22 +276,21 @@ export default function CustomerService() {
           <button onClick={controlChatbox}>X</button>
         </Header>
         <Section ref={chatBox}>
-          <SupportStaff
-            QnA={questions}
-            handleQueastion={handleQuestion}
-          ></SupportStaff>
-          {conversation?.map((perConver, index) => (
-            <NewConversation
-              conversation={perConver}
-              key={index}
-              scrollToBottom={scrollToBottom}
-            ></NewConversation>
+          {allConversation.map((permsg, index) => (
+            <Fragment key={index}>{permsg}</Fragment>
           ))}
+          {isConnectedLoading ? <p>連線客服人員中</p> : <></>}
         </Section>
-        <InputDiv>
-          <Input placeholder="請輸入您要尋問的問題" />
-          <Button>發送</Button>
-        </InputDiv>
+        <Form onSubmit={onSubmit}>
+          <Input
+            placeholder="請輸入您要尋問的問題"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+          <Button type="submit" disabled={isLoading}>
+            發送
+          </Button>
+        </Form>
       </Wrapper>
     </>
   );
