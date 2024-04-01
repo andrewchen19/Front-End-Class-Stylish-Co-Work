@@ -117,7 +117,7 @@ function Carousel() {
       {campaigns.map(({ picture, product_id, story }, index) => (
         <Campaign
           $isActive={index === activeCampaignIndex}
-          $backgroundImageUrl={picture}
+          $backgroundImageUrl={`https://3.225.61.15/${picture}`}
           key={index}
           to={`/products/${product_id}`}
         >
