@@ -11,46 +11,30 @@ export const BackDrop = () => {
   );
 };
 
-const CouponsModal = ({ onClose, onSubmit, setDiscount }) => {
+const CouponsModal = ({
+  onClose,
+  onSubmit,
+  setDiscountContext,
+  allCoupons,
+}) => {
   const [couponsState, setCouponsState] = useState();
 
   useEffect(() => {
+    const couponsFixed = allCoupons.filter((coupon) => coupon.type === 'FIXED');
+    const couponsPercent = allCoupons.filter(
+      (coupon) => coupon.type === 'PERCENT'
+    );
+    const couponsSorted = [...couponsFixed, ...couponsPercent];
     const updatedSelectedState = couponsSorted.map((coupon) => ({
       ...coupon,
       isSelected: false,
+      expiration_year: coupon.expiration_date.split(' ')[3],
+      expiration_month:
+        coupon.expiration_date.split(' ')[2] === 'Dec' ? '12' : null,
+      expiration_date: coupon.expiration_date.split(' ')[1],
     }));
     setCouponsState(updatedSelectedState);
-  }, []);
-
-  // useEffect(() => {
-  //   couponsState && console.log(couponsState);
-  // }, [couponsState]);
-  const couponsData = [
-    {
-      coupon_id: 0,
-      discount_value: 0.2,
-      expiration_date: '2025/12/31',
-      type: 'PERCENT',
-    },
-    {
-      coupon_id: 1,
-      discount_value: 50.0,
-      expiration_date: '2025/12/31',
-      type: 'FIXED',
-    },
-    {
-      coupon_id: 2,
-      discount_value: 0.1,
-      expiration_date: '2025/12/31',
-      type: 'PERCENT',
-    },
-  ];
-
-  const couponsFixed = couponsData.filter((coupon) => coupon.type === 'FIXED');
-  const couponsPercent = couponsData.filter(
-    (coupon) => coupon.type === 'PERCENT'
-  );
-  const couponsSorted = [...couponsFixed, ...couponsPercent];
+  }, [allCoupons]);
 
   const handleSelectCoupon = (index, type) => {
     setCouponsState((prevState) =>
@@ -63,37 +47,50 @@ const CouponsModal = ({ onClose, onSubmit, setDiscount }) => {
     );
   };
   const handleUseCoupon = () => {
-    setDiscountContext();
+    getDiscountContext();
     onClose();
     const discountState = setDiscountState();
     onSubmit(discountState);
   };
 
-  const setDiscountContext = () => {
+  const getDiscountContext = () => {
     const selectedCoupon = couponsState.find(
       (coupon) => coupon.isSelected === true
     );
     const selectedCoupon_type = selectedCoupon.type;
     const selectedCoupon_discountValue = selectedCoupon.discount_value;
+
     let discountContext = '';
     selectedCoupon_type === 'FIXED'
-      ? (discountContext = `結帳折抵 ${selectedCoupon_discountValue} 元`)
-      : (discountContext = `結帳折扣 ${
-          (1 - selectedCoupon_discountValue) * 10
-        } 折`);
+      ? (discountContext = `結帳折抵 ${Math.floor(
+          Number(selectedCoupon_discountValue)
+        )} 元`)
+      : (discountContext = `結帳折扣 ${Math.floor(
+          (1 - Number(selectedCoupon_discountValue)) * 10
+        )} 折`);
 
-    setDiscount(discountContext);
+    setDiscountContext(discountContext);
   };
 
   const setDiscountState = () => {
+    const coupon_id = couponsState.find(
+      (coupon) => coupon.isSelected
+    ).coupon_id;
     const type = couponsState.find((coupon) => coupon.isSelected).type;
     const discount_value = couponsState.find(
       (coupon) => coupon.isSelected
     ).discount_value;
+    const discount_value_fixed = Math.floor(Number(discount_value));
+    const discount_value_percent = (1 - Number(discount_value)) * 10;
+    // console.log(discount_value_fixed);
     if (type === 'FIXED') {
-      return { type, discount_value };
+      return {
+        coupon_id,
+        type,
+        discount_value: discount_value_fixed.toString(),
+      };
     } else {
-      return { type, discount_value: (1 - discount_value) * 10 };
+      return { coupon_id, type, discount_value: discount_value_percent };
     }
   };
   return (
@@ -114,7 +111,7 @@ const CouponsModal = ({ onClose, onSubmit, setDiscount }) => {
                     key={coupon.coupon_id}
                     className={`couponContainer flex m-3 hover:cursor-pointer ${
                       coupon.isSelected
-                        ? 'border-2 border-yellow-700 border-solid rounded-lg shadow-xl transform scale-105'
+                        ? 'border-2 border-yellow-700 border-solid rounded-lg shadow-xl transform scale-[1.015]'
                         : ''
                     } transition duration-[80] ease-in-out`}
                     onClick={() => handleSelectCoupon(index, coupon.type)}
@@ -136,9 +133,15 @@ const CouponsModal = ({ onClose, onSubmit, setDiscount }) => {
                           </span>
                         </div>
                         <p className="expiration relative left-[40px] text-[14px]">
-                          {`失效日期：${coupon.expiration_date}`}
+                          {`失效日期：${coupon.expiration_year}/${coupon.expiration_month}/${coupon.expiration_date}`}
                         </p>
-                        <div className="circle_decoration w-[15px] h-[15px] rounded-[45%] absolute right-[10px] top-[43px] bg-white"></div>
+                        <div
+                          className={`circle_decoration w-[15px] h-[15px] rounded-[45%] absolute right-[10px] top-[43px] bg-white ${
+                            coupon.isSelected
+                              ? ' bg-yellow-900 rounded-lg shadow-xl transform scale-[0.9]'
+                              : ''
+                          }`}
+                        ></div>
                       </div>
                     </div>
                   </div>
@@ -152,7 +155,7 @@ const CouponsModal = ({ onClose, onSubmit, setDiscount }) => {
                     key={coupon.coupon_id}
                     className={`couponContainer flex m-3 hover:cursor-pointer ${
                       coupon.isSelected
-                        ? 'border-2 border-yellow-700 border-solid rounded-lg shadow-xl transform scale-105'
+                        ? 'border-2 border-yellow-700 border-solid rounded-lg shadow-xl transform scale-[1.015]'
                         : ''
                     } transition duration-[80] ease-in-out`}
                     onClick={() =>
@@ -181,9 +184,17 @@ const CouponsModal = ({ onClose, onSubmit, setDiscount }) => {
                           </span>
                         </div>
                         <p className="expiration relative left-[40px] text-[14px]">
-                          {`失效日期：${coupon.expiration_date}`}
+                          {`失效日期：${coupon.expiration_year}/${coupon.expiration_month}/${coupon.expiration_date}`}
                         </p>
-                        <div className="circle_decoration w-[15px] h-[15px] rounded-[45%] absolute right-[10px] top-[43px] bg-white"></div>
+                        {/* <div className="circle_decoration w-[15px] h-[15px] rounded-[45%] absolute right-[10px] top-[43px] bg-white"></div> */}
+
+                        <div
+                          className={`circle_decoration w-[15px] h-[15px] rounded-[45%] absolute right-[10px] top-[43px] bg-white ${
+                            coupon.isSelected
+                              ? ' bg-yellow-900 rounded-lg shadow-xl transform scale-[0.9]'
+                              : ''
+                          }`}
+                        ></div>
                       </div>
                     </div>
                   </div>

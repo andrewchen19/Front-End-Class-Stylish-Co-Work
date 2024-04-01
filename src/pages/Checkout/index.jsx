@@ -232,6 +232,13 @@ const SubtotalPrice = styled(Price)`
 
 const ShippingPrice = styled(Price)`
   margin-top: 20px;
+
+  @media screen and (max-width: 1279px) {
+    margin-top: 20px;
+  }
+`;
+const DiscountPrice = styled(Price)`
+  margin-top: 20px;
   padding-bottom: 20px;
   border-bottom: 1px solid #3f3a3a;
 
@@ -324,23 +331,43 @@ const CoinUseSelect = styled.div`
   width: 285px;
   display: flex;
   align-items: center;
-  .toggleToUseCoins {
-    background-color: #fff;
-    width: 2rem;
-    height: 1rem;
-    border-radius: 50px;
-    border: solid #000 1px;
-    margin-left: 20px;
-  }
 `;
 
 function Checkout() {
+  // ↓ co-work adjustment
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [discount, setDiscount] = useState({ type: '', discount_value: 0 });
+  const [discount, setDiscount] = useState({
+    coupon_id: '',
+    type: 'FIXED',
+    discount_value: 0,
+  });
+
+  const [paymentDiscount, setPaymentDiscount] = useState(0);
 
   const [discountContext, setDiscountContext] = useState('結帳折抵 0 元');
 
+  const [allCoupons, setAllCoupons] = useState([]);
+
+  useEffect(() => {
+    const allCouponsUrl =
+      'http://34.29.92.215:5000/api/1.1/user/available-coupons';
+    const token =
+      'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInVzZXJSb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcxMTg1NzU4OCwiZXhwIjoxNzEyNzIxNTg4fQ.Xsqx9VNXmqCvJOxaJ9s-7n-6_vCQIGrKCuHCo4mvkabeQlFsdNQUnF1f_XwsVB3_eWKOWCbYAYB2vX1ciZzsDg';
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+
+    async function getCoupons(url, headers) {
+      const response = await fetch(url, { headers });
+      const couponsData = await response.json();
+      setAllCoupons(couponsData);
+    }
+    getCoupons(allCouponsUrl, headers);
+  }, []);
+
+  // ↑ co-work adjustment
   const [recipient, setRecipient] = useState({
     name: '',
     email: '',
@@ -375,6 +402,15 @@ function Checkout() {
     (prev, item) => prev + item.price * item.qty,
     0
   );
+  useEffect(() => {
+    const paymentDiscount =
+      discount.type === 'FIXED'
+        ? discount.discount_value
+        : Math.floor(
+            ((10 - discount.discount_value) / 10) * (subtotal + freight)
+          );
+    setPaymentDiscount(paymentDiscount);
+  }, [discount, subtotal]);
 
   const freight = 30;
 
@@ -443,8 +479,9 @@ function Checkout() {
   }
 
   return (
+    // ↓ co-work adjustment
     <Wrapper>
-      {isModalOpen && (
+      {isModalOpen && allCoupons && (
         <>
           <BackDrop
             onClick={() => {
@@ -452,8 +489,9 @@ function Checkout() {
             }}
           />
           <CouponsModal
+            allCoupons={allCoupons}
             onSubmit={setDiscount}
-            setDiscount={setDiscountContext}
+            setDiscountContext={setDiscountContext}
             onClose={() => {
               setIsModalOpen(false);
             }}
@@ -473,9 +511,10 @@ function Checkout() {
             <p>使用</p>
             <img className="w-[40px]" src={yellowCoin} alt="use_tokens" />
             <p>幣折抵</p>
-            <div className="toggleToUseCoins"></div>
           </CoinUseSelect>
         </DiscountWrapper>
+        {/* ↑ co-work adjustment */}
+
         <DeliveryAndPayContainer>
           <DeliveryWrapper>
             <Label>配送國家</Label>
@@ -555,10 +594,15 @@ function Checkout() {
         <Currency>NT.</Currency>
         <PriceValue>{freight}</PriceValue>
       </ShippingPrice>
+      <DiscountPrice>
+        <PriceName>折扣金額</PriceName>
+        <Currency>NT.</Currency>
+        <PriceValue>{paymentDiscount}</PriceValue>
+      </DiscountPrice>
       <TotalPrice>
         <PriceName>應付金額</PriceName>
         <Currency>NT.</Currency>
-        <PriceValue>{subtotal + freight}</PriceValue>
+        <PriceValue>{subtotal + freight - paymentDiscount}</PriceValue>
       </TotalPrice>
       <Button loading={loading} onClick={checkout}>
         確認付款
