@@ -1,5 +1,5 @@
 const api = {
-  hostname: 'https://3.225.61.15/api/1.0',
+  hostname: "https://3.225.61.15/api/1.0",
 
   async getProducts(category, paging) {
     const response = await fetch(
@@ -25,7 +25,7 @@ const api = {
     } else {
       response = await fetch(`${this.hostname}/products/details?id=${id}`, {
         headers: new Headers({
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         }),
       });
@@ -37,10 +37,10 @@ const api = {
     const response = await fetch(`${this.hostname}/order/checkout`, {
       body: JSON.stringify(data),
       headers: new Headers({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${jwtToken}`,
       }),
-      method: 'POST',
+      method: "POST",
     });
     return await response.json();
   },
@@ -48,16 +48,16 @@ const api = {
     const response = await fetch(`${this.hostname}/user/signin`, {
       body: JSON.stringify(data),
       headers: new Headers({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
-      method: 'POST',
+      method: "POST",
     });
     return await response.json();
   },
   async getProfile(jwtToken) {
     const response = await fetch(`${this.hostname}/user/profile`, {
       headers: new Headers({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${jwtToken}`,
       }),
     });

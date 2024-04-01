@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import styled from 'styled-components';
-import api from '../../utils/api';
-import ProductVariants from './ProductVariants';
-import Carousel from './Carousel';
-import { toast } from 'react-toastify';
-import { useGlobalContext } from '../../context/globalContext';
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import styled from "styled-components";
+import api from "../../utils/api";
+import ProductVariants from "./ProductVariants";
+import Carousel from "./Carousel";
+import { toast } from "react-toastify";
+import { useGlobalContext } from "../../context/globalContext";
+import axios from "axios";
 
 import {
   AiOutlineLike,
   AiFillLike,
   AiOutlineDislike,
   AiFillDislike,
-} from 'react-icons/ai';
+} from "react-icons/ai";
 
 const Wrapper = styled.div`
   max-width: 960px;
@@ -153,7 +154,7 @@ const StoryTitle = styled.div`
   }
 
   &::after {
-    content: '';
+    content: "";
     height: 1px;
     flex-grow: 1;
     background-color: #3f3a3a;
@@ -210,12 +211,12 @@ function Product() {
   // new state
   const [isLike, setIsLike] = useState(false);
   const [isDislike, setIsDislike] = useState(false);
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
   const [likeAmount, setLikeAmount] = useState(999);
   const [dislikeAmount, setDislikeAmount] = useState(100);
 
   useEffect(() => {
-    const token = user ? user.accessToken : '';
+    const token = user ? user.accessToken : "";
     async function getProduct() {
       const { data } = await api.getProduct(id, token);
       setProduct(data);
@@ -226,9 +227,16 @@ function Product() {
   useEffect(() => {
     if (!value) return;
 
-    const delayedFunction = async();
+    console.log(value);
 
-    const timeoutId = setTimeout(delayedFunction, 10000);
+    const delayedFunction = async () => {
+      console.log(value);
+      console.log("execute delayed");
+
+      // const xxx = axios.post("")
+    };
+
+    const timeoutId = setTimeout(delayedFunction, 5000);
 
     return () => {
       clearTimeout(timeoutId);
@@ -243,18 +251,20 @@ function Product() {
     const addLikeAndCancelDislike = !isLike && isDislike;
 
     if (!user) {
-      toast.error('Please log in first 😬');
+      toast.error("Please log in first 😬");
       return;
     }
 
     if (addLike) {
       setIsLike(true);
       setLikeAmount(likeAmount + 1);
+      setValue("good");
     }
 
     if (cancelLike) {
       setIsLike(false);
       setLikeAmount(likeAmount - 1);
+      setValue("nothing");
     }
 
     if (addLikeAndCancelDislike) {
@@ -262,6 +272,7 @@ function Product() {
       setIsDislike(false);
       setLikeAmount(likeAmount + 1);
       setDislikeAmount(dislikeAmount - 1);
+      setValue("good");
     }
   };
   const dislikeHandler = () => {
@@ -270,18 +281,20 @@ function Product() {
     const addDislikeAndCancelLike = isLike && !isDislike;
 
     if (!user) {
-      toast.error('Please log in first 😬');
+      toast.error("Please log in first 😬");
       return;
     }
 
     if (addDislike) {
       setIsDislike(true);
       setDislikeAmount(dislikeAmount + 1);
+      setValue("bad");
     }
 
     if (cancelDislike) {
       setIsDislike(false);
       setDislikeAmount(dislikeAmount - 1);
+      setValue("nothing");
     }
 
     if (addDislikeAndCancelLike) {
@@ -289,6 +302,7 @@ function Product() {
       setIsLike(false);
       setDislikeAmount(dislikeAmount + 1);
       setLikeAmount(likeAmount - 1);
+      setValue("bad");
     }
   };
   const amountTransform = (amount) => {
