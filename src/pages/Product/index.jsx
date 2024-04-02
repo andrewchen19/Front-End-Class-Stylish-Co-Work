@@ -212,28 +212,69 @@ function Product() {
   const [isLike, setIsLike] = useState(false);
   const [isDislike, setIsDislike] = useState(false);
   const [value, setValue] = useState("");
-  const [likeAmount, setLikeAmount] = useState(999);
-  const [dislikeAmount, setDislikeAmount] = useState(100);
+  const [likeAmount, setLikeAmount] = useState(0);
+  const [dislikeAmount, setDislikeAmount] = useState(0);
 
   useEffect(() => {
+    const url = `https://3.225.61.15/api/1.0/products/details?id=${id}`;
     const token = user ? user.accessToken : "";
+    let response;
+
     async function getProduct() {
-      const { data } = await api.getProduct(id, token);
-      setProduct(data);
+      if (token) {
+        response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response.data);
+        setProduct(response.data.data);
+        setLikeAmount(response.data.rating.goodCounts);
+        setDislikeAmount(response.data.rating.badCounts);
+        if (response.data.userRate === "good") {
+          setIsLike(true);
+        } else if (response.data.userRate === "bad") {
+          setIsDislike(true);
+        }
+      } else {
+        response = await axios.get(url);
+        setProduct(response.data.data);
+        setLikeAmount(response.data.rating.goodCounts);
+        setDislikeAmount(response.data.rating.badCounts);
+      }
     }
     getProduct();
   }, [id]);
 
   useEffect(() => {
     if (!value) return;
-
     console.log(value);
 
-    const delayedFunction = async () => {
-      console.log(value);
-      console.log("execute delayed");
+    const token = user ? user.accessToken : "";
 
-      // const xxx = axios.post("")
+    const delayedFunction = async () => {
+      const url = `https://34.29.92.215/api/1.1/user/rating`;
+
+      try {
+        const response = await axios.post(
+          url,
+          {
+            product_id: id,
+            rating: value,
+            comment: "",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log(response);
+      } catch (error) {
+        // token expired or missing
+        console.log(error);
+        toast.error("Token Missing or Invalid. Please Login Again");
+      }
     };
 
     const timeoutId = setTimeout(delayedFunction, 5000);

@@ -1,5 +1,5 @@
 import ReactLoading from "react-loading";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 
@@ -113,8 +113,22 @@ function Products() {
   });
   useInfiniteScroll(loadMoreProducts);
 
-  // new state
-  const [likeAmount, setLikeAmount] = useState(1000);
+  const [fakeLikeList, setFakeLikeList] = useState([]);
+
+  useEffect(() => {
+    if (category === "all") {
+      setFakeLikeList([60, 55, 43, 43, 50, 63]);
+    }
+    if (category === "women") {
+      setFakeLikeList([46, 46, 43, 43, 50, 50]);
+    }
+    if (category === "men") {
+      setFakeLikeList([48, 1, 50]);
+    }
+    if (category === "accessories") {
+      setFakeLikeList([60, 55, 63, 0]);
+    }
+  }, [category]);
 
   const amountTransform = (amount) => {
     if (amount >= 1000) {
@@ -125,7 +139,7 @@ function Products() {
 
   return (
     <Wrapper>
-      {products.map(({ id, main_image, colors, title, price }) => (
+      {products.map(({ id, main_image, colors, title, price }, index) => (
         <Product key={id}>
           <Link to={`/products/${id}`}>
             <ProductImage src={main_image} />
@@ -139,7 +153,7 @@ function Products() {
             <div className="absolute right-0 flex items-center">
               <AiFillLike fill="#3f3a3a" className="text-[20px] leading-6" />
               <p className="pl-3 font-medium text-primary">
-                {amountTransform(likeAmount)}
+                {amountTransform(fakeLikeList[index])}
               </p>
             </div>
           </ProductColors>
