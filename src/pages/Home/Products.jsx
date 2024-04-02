@@ -117,16 +117,16 @@ function Products() {
 
   useEffect(() => {
     if (category === "all") {
-      setFakeLikeList([60, 55, 43, 43, 50, 63]);
+      setFakeLikeList([7, 7, 12, 9, 9, 8]);
     }
     if (category === "women") {
-      setFakeLikeList([46, 46, 43, 43, 50, 50]);
+      setFakeLikeList([11, 10, 12, 9, 7, 9]);
     }
     if (category === "men") {
-      setFakeLikeList([48, 1, 50]);
+      setFakeLikeList([14, 0, 5]);
     }
     if (category === "accessories") {
-      setFakeLikeList([60, 55, 63, 0]);
+      setFakeLikeList([7, 7, 8, 0]);
     }
   }, [category]);
 

@@ -362,7 +362,7 @@ function Product() {
         <Price>
           TWD.{product.price}
           <button
-            className="absolute bottom-[20px] right-[80px] bg-gray-100 h-6 px-2 flex items-center gap-2 rounded-md hover:bg-gray-200 font-normal text-base"
+            className="absolute bottom-[20px] right-[70px] bg-gray-100 h-6 px-2 flex items-center gap-2 rounded-md hover:bg-gray-200 font-normal text-base"
             title="我喜歡"
             onClick={() => likeHandler(product.id)}
           >
